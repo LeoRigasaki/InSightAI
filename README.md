@@ -1,321 +1,203 @@
-# BambooAI
-An open-source library that lets you analyze and explore data through natural language conversations using LLMs. Works with your local datasets or can fetch data from external sources and APIs.
+# InsightAI
 
-## Objective
+A powerful open-source library that enables natural language conversations with data using Large Language Models (LLMs). Perfect for data analysis, research, and insights generation with zero-code requirements.
 
-The BambooAI library is an experimental tool that utilizes Large Language Models (LLMs) to facilitate data analysis, making it more accessible to users, including those without programming expertise. It functions as an assistant for research and data analysis, allowing users to interact with their data through natural language. Users can supply their own datasets or BambooAI can assist in sourcing the necessary data. The tool also integrates internet searches and accesses external APIs to enhance its functionality.
+## 🚀 Key Features
 
-BambooAI processes natural language queries about datasets and can generate and execute Python code for data analysis and visualization. This enables users to derive insights from their data without extensive coding knowledge. Users simply input their dataset, ask questions in simple English, and BambooAI provides the answers, along with visualizations if needed, to help understand the data better.
+- **Natural Language Interface**: Ask questions about your data in plain English
+- **Multiple Model Support**: Works with OpenAI, Groq, and other LLM providers
+- **Smart Data Analysis**: Automatic code generation for data analysis and visualization
+- **Error Handling**: Built-in debugging and error correction mechanisms
+- **Detailed Logging**: Comprehensive logging of all LLM interactions and costs
+- **SQL Support**: Native support for SQL databases and queries
+- **Customizable**: Configurable model settings and prompt templates
 
-BambooAI aims to augment the capabilities of data analysts across all levels. It simplifies data analysis and visualization, helping to streamline workflows. The library is designed to be user-friendly, efficient, and adaptable to meet various needs.
+## 📦 Installation
 
-## Preview
-
-**Try it out in Google Colab:**
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1grKtqKD4u8cVGMoVv__umci4F7IU14vU?usp=sharing)
-
-
-**A Machine Learning Example using supplied dataframe:**
+```bash
+pip install insightai
 ```
-!pip install pandas
-!pip install bambooai
 
+## 🔑 Configuration
+
+### Required API Keys
+
+```bash
+# Required environment variables
+export OPENAI_API_KEY="your-openai-api-key"
+export GROQ_API_KEY="your-groq-api-key"
+```
+
+### Optional Configuration Files
+
+1. **LLM_CONFIG.json** - Configure model settings per agent:
+```json
+{
+    "agent": "Code Generator",
+    "details": {
+        "model": "gpt-4o-mini",
+        "provider": "openai",
+        "max_tokens": 2000,
+        "temperature": 0
+    }
+}
+```
+
+2. **PROMPT_TEMPLATES.json** - Customize agent prompts
+
+## 💡 Usage Examples
+
+### Basic Usage with DataFrame
+
+```python
 import pandas as pd
-from bambooai import BambooAI
+from insightai import InsightAI
 
-df = pd.read_csv('titanic.csv')
-bamboo = BambooAI(df, debug=False, vector_db=False, search_tool=True)
-bamboo.pd_agent_converse()
-```
-**Jupyter Notebook:** 
+# Load your data
+df = pd.read_csv('sales_data.csv')
 
-_Task: Can you please devise a machine learnig model to predict the survival of passengers on the Titanic? 
-Output the accuracy of the model. Plot the confusion matrix, correlation matrix, and other relevant metrics. Search internet for the best approach to this task._
+# Initialize InsightAI
+insight = InsightAI(df, debug=False)
 
+# Single question
+insight.pd_agent_converse("What is the total revenue by product category?")
 
-
-
-https://github.com/user-attachments/assets/59ef810c-80d8-4ef1-8edf-82ba64178b85
-
-
-
-**Web UI:**
-
-_Task: Various queries related to sports data_
-
-
-https://github.com/user-attachments/assets/5d013ea0-cb44-4044-9cf4-3efa155288b8
-
-
-
-
-
-
-## How it works
-
-The BambooAI agent operates through several key steps to interact with users and generate responses:
-
-**1. Initiation**
-- The user launches the BambooAI agent with a question.
-- If no initial question is provided, the agent prompts the user for a question or an 'exit' command to terminate the program.
-- The agent then enters a loop where it responds to each question provided, and upon completion, prompts the user for the next question. This loop continues until the user chooses to exit the program.
-
-**2. Task Routing**
-- The agent stores the received question and utilizes the Large Language Model (LLM) to classify it.
-- The LLM determines whether the question necessitates a textual response, additional information (Google search: https://serper.dev/), or can be resolved using code.
-- Depending on the task evaluation and classification the task is routed to the appropriate agent.
-
-**3. Dynamic Prompt Build**
-- If the question can be resolved by code, the agent determines whether the necessary data is contained within the provided dataset, requires downloading from an external source, or if the question is of a generic nature and data is not required.
-- The agent then chooses its approach accordingly. It can formulate a plan to serve as a blueprint for the analysis.
-- The original question is modified to align with this algorithm. The agent performs a semantic search against a vector database for similar questions.
-- Any matching questions found are appended to the prompt as examples. A selected LLM model is then used to generate code based on the algorithm.
-
-**4. Debugging, Execution, and Error Correction**
-- The code is executed, and if errors occur, the agent logs the error message and refers it back to the LLM for correction.
-- This process continues until successful code execution or the error correction limit is reached.
-
-**5. Results, Ranking, and Knowledge Base Build**
-- Post successful execution, user can rank the answer.
-- If the rank surpasses a set threshold, the question, answer, code, and rank are stored in the Pinecone vector database.
-- Regardless of the rank, the final answer or visualization is formatted and presented to the user.
-
-Throughout this process, the agent continuously solicits user input, stores messages for context, and generates and executes code to ensure optimal results. Various AI models and a vector database are employed in this process to provide accurate and helpful responses to user's questions.
-
-**Flow chart (General agent flow):**
-
-![](images/BambooAI_Agent_Flow.png)
-
-## Supported vendors/models
-
-The library is vendoe agnistic and supports use of various open source or proprietary models, either via API or localy.
-
-**API:**
-- OpenAI - All models
-- Google - Gemini Models
-- Anthropic - All Models
-- Groq - All Models
-- Mistral - All Models
-
-**Local:**
-- Ollama - All Models
-- A Selection of local models(more info below)
-
-You can specify what vendor/model you want to use for a specific agent by modifying the content of LLM_CONFIG file, replacing the default OpenAI model name with the model and vendor of your choicee. eg. ```{"agent": "Code Generator", "details": {"model": "open-mixtral-8x22b", "provider":"mistral","max_tokens": 4000, "temperature": 0}}```. The purpose of LLM_CONFIG is described in more detail below.
-
-## How to use
-
-**Installation**
-
-```
-pip install bambooai
+# Interactive mode
+insight.pd_agent_converse()
 ```
 
-**Usage**
+### SQL Database Analysis
 
-- Parameters
+```python
+from insightai import InsightAI
 
-```
-df: pd.DataFrame - Dataframe (It will try to source the data from internet, if 'df' is not provided)
+# Initialize with SQLite database
+insight = InsightAI(db_path='database.db')
 
-max_conversations: int - Number of "user:assistant" conversation pairs to keep in memory for a context. Default=4
-
-debug: bool - If True, the received code is sent back to the LLM for evaluation of its relevance to the user's question, along with code error checking and debugging.
-
-search_tool: bool - If True, the Planner agent will use a "google search API: https://serper.dev/" if the required information is not available or satisfactory. By default it only support HTML sites, but can be enhanced with Selenium if the ChromeDriver exists on the system (details below).
-
-vector_db: bool - If True, each answer will first be ranked from 1 to 10. If the rank surpasses a certain threshold (8), the corresponding question (vectorised), plan, code, and rank (metadata) are all stored in the Pinecone database. Each time a new question is asked, these records will be searched. If the similarity score is above 0.9, they will be offered as examples and included in the prompt (in a one-shot learning scenario)
-
-df_onthology: bool - If True, the onthology defined in the module `df_onthology.py` will be used to inform LLM of the dataframe structure, metrics, record frequency, keys, joins, abstract functions etc. The onthology is custom for each dataframe type, and needs to be defined by the user. Sample onthology is included. This feature signifficantly improves performance, and quality of the solutions.
-
-exploratory: bool - If set to True, the LLM will evaluate the user's question and select an "Expert" that is best suited to address the question (experts: Research Specialist, Data Analyst). In addition, if the task involves code generation/execution, it will generate a task list detailing the steps, which will subsequently be sent to the LLM as a part of the prompt for the next action. This method is particularly effective for vague user prompts, but it might not perform as efficiently with more specific prompts. The default setting is True.
-
-e.g. bamboo = BambooAI(df, debug=True, vector_db=True, search_tool=True, exploratory=True)
-     bamboo = BambooAI(df,debug=False, vector_db=False, exploratory=True, search_tool=True)
+# Analyze your data
+insight.pd_agent_converse("Show me the top 10 customers by order value")
 ```
 
-- LLM Config
+## 🔧 Advanced Configuration
 
-The agent specific llm configuration is stored in ```LLM_CONFIG``` environment variable, or in the "LLM_CONFIG.json file which needs to be stored in the BambooAI's working directory. The config is in a form of JSON list of dictionaries and specifies model name, provider, temperature and max_tokens for each agent. You can use the provided LLM_CONFIG_sample.json as a starting point, and modify the config to reflect your preferences. If neither "ENV VAR" nor "LLM_CONFIG.json" is present, BambooAI will use the default hardcoded configuration that uses "gpt-3.5-turbo" for all agents.
+### Constructor Parameters
 
-- Prompt Templates
-
-The BambooAI library uses default hand crafted set of prompt templates for each agent. If you want to experiment with them, you can modify the provided "PROMPT_TEMPLATES_sample.json" file, remove the "_sample from its name and store in the working directory. Subsequently, the content of the modified "PROMPT_TEMPLATES.json" will be used instead of the defaults. You can always revert back to default prompts by removing/renaming the modified "PROMPT_TEMPLATES.json".
-
-- Example usage: Run in a loop
-
-```
-# Run in a loop remembering the conversation history
-import pandas as pd
-from bambooai import BambooAI
-
-df = pd.read_csv('test_activity_data.csv')
-bamboo = BambooAI(df)
-bamboo.pd_agent_converse()
-```
-- Example Usage: Single execution
-```
-# Run programaticaly (Single execution).
-import pandas as pd
-from bambooai import BambooAI
-
-df = pd.read_csv('test_activity_data.csv')
-bamboo = BambooAI(df)
-bamboo.pd_agent_converse("Calculate 30, 50, 75 and 90 percentiles of the heart rate column")
+```python
+InsightAI(
+    df=None,                    # DataFrame object
+    db_path=None,              # Path to SQL database
+    max_conversations=4,        # Number of conversation pairs to remember
+    debug=False,               # Enable debugging mode
+    exploratory=True,          # Enable exploratory analysis
+    df_ontology=False          # Enable data ontology support
+)
 ```
 
-**Environment Variables**
+### Supported LLM Providers
 
-The library requires an OpenAI API account and the API key to connect to OpenAI LLMs. The OpenAI API key needs to be stored in a ```OPENAI_API_KEY``` environment variable.
-The key can be obtained from here: https://platform.openai.com/account/api-keys.
+- OpenAI
+  - GPT-4
+  - GPT-3.5-turbo
+- Groq
+  - LLama-70B
+  - Mixtral-8x7B
 
-In addition to OpenAI models a selection of models from different providers is also supported (Groq, Gemini, Mistral, Anthropic). The API keys needs to be stored in environment variables in the following format ```<VENDOR_NAME>_API_KEY```.
-You need to use ```GEMINI_API_KEY``` for Google Gemini models. 
+## 📊 Example Output
 
-As mentioned above, the llm config can be stored in a string format in the  ```LLM_CONFIG``` environment variable. You can use the content of the provided LLM_CONFIG_sample.json as a starting point and modify to your preference, depending on what models you have access to. 
+### Data Analysis
+```python
+Question: "Analyze the sales trend over the last 6 months"
 
-The Pincone vector db is optional. If you don want to use it, you dont need to do anything. If you have an account with Pinecone and would like to use the knowledge base and ranking features, you will be required to setup ```PINECONE_API_KEY``` envirooment variable, and set the 'vector_db' parameter to True. The vector db index is created upon first execution.
-
-The Google Search is also optional. If you don want to use it, you dont need to do anything. If you have an account with Serper and would like to use the Google Search functionality, you will be required to setup and account with ": https://serper.dev/", and set ```SERPER_API_KEY``` environment variable, and set the 'search_tool' parameter to True. By default bambooai can only scrape websites with HTML content. However it is also capable of using Selenium with ChromeDriver, which is much more powerfull. To enable this functionality you will need to manualy download a version of ChromeDriver that matches your version of the Chrome browser, store it on the filesystem and create an environment variable ```SELENIUM_WEBDRIVER_PATH``` with a path to your ChromeDriver. BambooAI wil pick it up automaticaly, and use Selenium for all scraping tasks.
-
-**Local Open Source Models**
-
-The library currently directly supports the following open-source models. I have selected the models that currently score the highest on the HumanEval benchmark.
-- **WizardCoder(WizardLM):** WizardCoder-15B-V1.0, WizardCoder-Python-7B-V1.0, WizardCoder-Python-13B-V1.0, WizardCoder-Python-34B-V1.0
-- **WizardCoder GPTQ(TheBloke):** WizardCoder-15B-1.0-GPTQ, WizardCoder-Python73B-V1.0-GPTQ, WizardCoder-Python-13B-V1.0-GPTQ, WizardCoder-Python-34B-V1.0-GPTQ
-- **CodeLlama Instruct(TheBloke):** CodeLlama-7B-Instruct-fp16, CodeLlama-13B-Instruct-fp16, CodeLlama-34B-Instruct-fp16
-- **CodeLlama Instruct(Phind):** Phind-CodeLlama-34B-v2
-- **CodeLlama Completion(TheBloke):** CodeLlama-7B-Python-fp16, CodeLlama-13B-Python-fp16, CodeLlama-34B-Python-fp16
-
-If you want to use the local model for a specific agent, modify the LLM_CONFIG content replacing the OpenAI model name with the local model name and change the provider value to 'local'. eg. ```{"agent": "Code Generator", "details": {"model": "Phind-CodeLlama-34B-v2", "provider":"local","max_tokens": 2000, "temperature": 0}}```
-At present it is recommended to use local models only for code generation tasks, all other tasks like pseudo code generaration, summarisation, error correction and ranking should be still handled by OpenAI models of choice. The model is downloaded from Huggingface and cached localy for subsequent executions. For a reasonable performance it requires CUDA enabled GPU and the pytorch library compatible with the CUDA version. Below are the required libraries that are not included in the package and will need to be installed independently:
-```
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118 (Adjust to match your CUDA version. This library is already included in Colab notebooks)
-pip install auto-gptq (Only required if using WizardCoder-15B-1.0-GPTQ model)
-pip install accelerate
-pip install einops
-pip install xformers
-pip install bitsandbytes
-```
-The settings and parameters for local models are located in local_models.py module and can be adjusted to match your particular configuration or preferences.
-
-**Ollama**
-
-The library also supports the use of Ollama https://ollama.com/ and all of it's models. If you want to use a local Ollama model for a specific agent, modify the LLM_CONFIG content replacing the OpenAI model name with the Ollama model name and change the provider value to 'ollama'. eg. ```{"agent": "Code Generator", "details": {"model": "llama3:70b", "provider":"ollama","max_tokens": 2000, "temperature": 0}}```
-
-**Logging**
-
-All LLM interactions (local or via APIs) are logged in the `bambooai_consolidated_log.json` file. When the size of the log file reaches 5 MB, a new log file is created. A total of 3 log files are kept on the file system before the oldest file gets overwritten.
-
-The following details are captured:
-
-- **Chain ID**
-- **All LLM calls (steps) within the chain**, including details of each call eg. agent name, timestamp, model, prompt (context memory), response, token use, cost, tokens per second etc. 
-- **Chain summary**, including token use, cost, count of llm calls, tokens per second etc.
-- **Summary per LLM**, including token use, cost, number of calls, tokens per second etc.
-
-Log Structure:
-```
-- chain_id: 1695375585
-  ├─ chain_details (LLM Calls)
-  │   ├─ List of Dictionaries (Multiple Steps)
-  │       ├─ Call 1
-  │       │   ├─ agent (String)
-  │       │   ├─ chain_id (Integer)
-  │       │   ├─ timestamp (String)
-  │       │   ├─ model (String)
-  │       │   ├─ messages (List)
-  │       │   │   └─ role (String)
-  │       │   │   └─ content (String)
-  │       │   └─ Other Fields (content, prompt_tokens, completion_tokens, total_tokens, elapsed_time, tokens_per_second, cost)
-  │       ├─ Call 2
-  │       │   └─ ... (Similar Fields)
-  │       └─ ... (Call 3, Call 4, Call 5 ...)
-  │
-  ├─ chain_summary
-  │   ├─ Dictionary
-  │       ├─ Total LLM Calls (Integer)
-  │       ├─ Prompt Tokens (Integer)
-  │       ├─ Completion Tokens (Integer)
-  │       ├─ Total Tokens (Integer)
-  │       ├─ Total Time (Float)
-  │       ├─ Tokens per Second (Float)
-  │       ├─ Total Cost (Float)
-  │
-  ├─ summary_per_model
-      ├─ Dictionary
-          ├─ LLM 1 (Dictionary)
-          │   ├─ LLM Calls (Integer)
-          │   ├─ Prompt Tokens (Integer)
-          │   ├─ Completion Tokens (Integer)
-          │   ├─ Total Tokens (Integer)
-          │   ├─ Total Time (Float)
-          │   ├─ Tokens per Second (Float)
-          │   ├─ Total Cost (Float)
-          ├─ LLM 2
-          |   └─ ... (Similar Fields)
-          └─ ... (LLM 3, LLM 4, LLM 5 ...)
+# Generated Analysis
+1. Monthly Sales Trend
+2. Top Products by Revenue
+3. Regional Performance
+4. Growth Rate Analysis
 ```
 
-## Performance Comparison (3rd May 2024)
+### SQL Query
+```python
+Question: "Find customers who spent over $1000"
 
-**Task:** _Devise a machine learning model to predict the survival of passengers on the Titanic. The output should include the accuracy of the model and visualizations of the confusion matrix, correlation matrix, and other relevant metrics._
+# Generated SQL
+SELECT 
+    c.customer_name,
+    SUM(o.total_amount) as total_spent
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id
+HAVING total_spent > 1000
+ORDER BY total_spent DESC;
+```
 
-**Dataset:** _Titanic.csv_
+## 📝 Logging
 
-**Model:** _GPT-4-Turbo_
+All interactions are logged in `bambooai_consolidated_log.json`:
 
-### **_OpenAI Assistants API (Code Interpreter)_**
-- **Result:**
-  - **Confusion Matrix:**
-    - **True Negative (TN):** 90 passengers were correctly predicted as not surviving.
-    - **True Positive (TP):** 56 passengers were correctly predicted as surviving.
-    - **False Negative (FN):** 18 passengers were incorrectly predicted as not surviving.
-    - **False Positive (FP):** 15 passengers were incorrectly predicted as surviving.
-    
-| Metric         | Value        |
-| -------------- | ------------ |
-| Execution Time | 77.12 seconds|
-| Input Tokens   | 7128         |
-| Output Tokens  | 1215         |
-| Total Cost     | $0.1077      |
+```json
+{
+    "chain_id": "1234567890",
+    "details": {
+        "model": "gpt-4o-mini",
+        "tokens_used": 1500,
+        "cost": 0.03,
+        "duration": "2.3s"
+    }
+}
+```
 
+## 🗂️ Project Structure
 
-### **_BambooAI (No Planning, Google Search or Vector DB)_**
-- **Result:**
-  - **Confusion Matrix:**
-    - **True Negative (TN):** 92 passengers were correctly predicted as not surviving.
-    - **True Positive (TP):** 55 passengers were correctly predicted as surviving.
-    - **False Negative (FN):** 19 passengers were incorrectly predicted as not surviving.
-    - **False Positive (FP):** 13 passengers were incorrectly predicted as surviving.
-    
+```
+insightai/
+  ├── __init__.py
+  ├── insightai.py          # Main class implementation
+  ├── models.py             # LLM provider integrations
+  ├── prompts.py           # System prompts
+  ├── utils.py             # Utility functions
+  ├── log_manager.py       # Logging system
+  ├── output_manager.py    # Output formatting
+  ├── reg_ex.py           # Regular expressions
+  ├── func_calls.py       # Function definitions
+  └── groq_models.py      # Groq-specific implementation
+```
 
-| Metric         | Value        |
-| -------------- | ------------ |
-| Execution Time | 47.39 seconds|
-| Input Tokens   | 722          |
-| Output Tokens  | 931          |
-| Total Cost     | $0.0353      |
+## 🤝 Contributing
 
-## Eval Report 18th Aug 2024
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-[Objective Assessment of AI Tools for Sports Data Analytics_ Maxwell-v2 vs. Generic LLMs.pdf](https://github.com/user-attachments/files/16647425/Objective.Assessment.of.AI.Tools.for.Sports.Data.Analytics_.Maxwell-v2.vs.Generic.LLMs.pdf)
+### Development Setup
 
+```bash
+git clone https://github.com/yourusername/insightai.git
+cd insightai
+pip install -e ".[dev]"
+```
 
+## ⚠️ Known Limitations
 
-## Notes
+- Token limits based on model selection
+- Rate limiting from API providers
+- Memory constraints for large datasets
 
-- The library currently suports models from various vendors OpenAI, Anthropic, Google, Mistral, Groq served through their APIs. It also supports all Ollama models.
-- The library executes LLM generated Python code, this can be bad if the LLM generated Python code is harmful. Use cautiously.
-- Be sure to monitor your token usage. The cummulative summary is displayed after each interaction.*
+## 📄 License
 
-## Contributing
+MIT License - see [LICENSE](LICENSE) for details
 
-Contributions are welcome; please feel free to open a pull request. Keep in mind that our goal is to maintain a concise codebase with high readability.
+## 🙏 Acknowledgments
 
-## ToDo
+- OpenAI for API access
+- Groq for high-performance inference
+- Open-source community contributions
 
-- A lot :-)
+## 🔗 Links
+
+- [Documentation](https://insightai.readthedocs.io/)
+- [GitHub Repository](https://github.com/yourusername/insightai)
+- [Issue Tracker](https://github.com/yourusername/insightai/issues)
 
 
