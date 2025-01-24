@@ -11,11 +11,11 @@ except ImportError:
     # Fall back to script-style import
     import output_manager
 
-ORIGINAL_LOG_FILE_PATH = 'bambooai_run_log.json'
-CONSOLIDATED_LOG_FILE_PATH = 'bambooai_consolidated_log.json'
+ORIGINAL_LOG_FILE_PATH = 'insightai_run_log.json'
+CONSOLIDATED_LOG_FILE_PATH = 'insightai_consolidated_log.json'
 
 # Initialize the JSON logger
-logger = logging.getLogger('bambooai_json_logger')
+logger = logging.getLogger('insightai_json_logger')
 logger.setLevel(logging.INFO)
 logger.propagate = False
 

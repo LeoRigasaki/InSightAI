@@ -132,7 +132,7 @@ ORDER BY total_spent DESC;
 
 ## 📝 Logging
 
-All interactions are logged in `bambooai_consolidated_log.json`:
+All interactions are logged in `insightai_consolidated_log.json`:
 
 ```json
 {

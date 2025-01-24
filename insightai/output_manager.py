@@ -162,7 +162,7 @@ class OutputManager:
             # Split the summary text into lines
             summary_lines = summary_text.split('\n')
             # Start the Markdown table with headers
-            markdown_table = '**Chain Summary (Detailed info in bambooai_consolidated_log.json file):**\n\n'
+            markdown_table = '**Chain Summary (Detailed info in insightai_consolidated_log.json file):**\n\n'
             markdown_table += '| Metric                      | Value          |\n'
             markdown_table += '|-----------------------------|----------------|\n'
             # Populate the table with data
@@ -175,7 +175,7 @@ class OutputManager:
 
             display(Markdown(markdown_table))
         else:
-            cprint("\n>> Chain Summary (Detailed info in bambooai_consolidated_log.json file):", self.color_token_summary_cli, attrs=['bold'])
+            cprint("\n>> Chain Summary (Detailed info in insightai_consolidated_log.json file):", self.color_token_summary_cli, attrs=['bold'])
             self.print_wrapper(summary_text)
 
     # A wrapper for the print function. This can be used to add additional behaviors or formatting to the print function
