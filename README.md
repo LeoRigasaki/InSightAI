@@ -173,7 +173,7 @@ insightai/
 ### Development Setup
 
 ```bash
-git clone https://github.com/yourusername/insightai.git
+git clone https://github.com/LeoRigasaki/InSightAI.git
 cd insightai
 pip install -e ".[dev]"
 ```
@@ -190,14 +190,7 @@ MIT License - see [LICENSE](LICENSE) for details
 
 ## 🙏 Acknowledgments
 
+- Special thanks to [pgalko](https://github.com/pgalko/BambooAI) for the original inspiration and foundation
 - OpenAI for API access
 - Groq for high-performance inference
 - Open-source community contributions
-
-## 🔗 Links
-
-- [Documentation](https://insightai.readthedocs.io/)
-- [GitHub Repository](https://github.com/yourusername/insightai)
-- [Issue Tracker](https://github.com/yourusername/insightai/issues)
-
-
