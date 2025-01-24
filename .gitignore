@@ -10,3 +10,4 @@ test.py
 *.xlsx
 *.xls
 *.json
+.pypirc
