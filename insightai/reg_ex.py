@@ -109,10 +109,15 @@ def _extract_analyst(response: str) -> str:
     pattern = r'Data Analyst DF|Data Analyst Generic|SQL Analyst'
     json_segment = re.findall(r'```(?:json\s*)?(.*?)\s*```', response, re.DOTALL)
 
-    if json_segment:
-        data = json.loads(json_segment[0])
-        return data['analyst'], data.get('unknown'), data.get('condition')
-    
+    if json_segment and json_segment[0].strip():  # Add check for empty string
+        try:
+            data = json.loads(json_segment[0])
+            return data['analyst'], data.get('unknown'), data.get('condition')
+        except json.JSONDecodeError:
+            # Fallback parsing if JSON is malformed
+            print(f"Warning: Could not parse JSON: {json_segment[0]}")
+            
+    # More robust fallback pattern matching
     match = re.search(pattern, response)
     return (match.group(), None, None) if match else (None, None, None)
 

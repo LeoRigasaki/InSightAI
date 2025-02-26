@@ -23,7 +23,8 @@ class InsightAI:
              max_conversations: int = 4,
              debug: bool = False, 
              exploratory: bool = True,
-             df_ontology: bool = False):
+             df_ontology: bool = False,
+             generate_report: bool = False):
         
         if db_path:
             import sqlite3
@@ -33,6 +34,11 @@ class InsightAI:
         
         # Output
         self.output_manager = output_manager.OutputManager()
+        
+        self.report_enabled = generate_report  # IMPORTANT: Use report_enabled, not generate_report
+        self.dataset_category = None
+        self.report_questions = []
+        self.report_answers = []
 
         # Check if the OPENAI_API_KEY environment variable is set
         if not os.getenv('OPENAI_API_KEY'):
@@ -90,7 +96,10 @@ class InsightAI:
             "error_corector_system",
             "code_debugger_system",
             "code_ranker_system",
-            "solution_summarizer_system"
+            "solution_summarizer_system",
+            "dataset_categorizer_system",
+            "question_generator_system",
+            "report_generator_system",
         ]
 
         prompt_data = {}
@@ -345,7 +354,14 @@ class InsightAI:
         chain_id = int(time.time())
         self.chain_id = chain_id
         self.reset_messages_and_logs()
-
+        
+        if self.report_enabled:  # IMPORTANT: Use report_enabled, not generate_report
+                self.output_manager.display_system_messages("Report generation enabled - starting comprehensive analysis")
+                # Generate report with 5 auto-generated questions
+                self.generate_data_report(num_questions=5)
+                # If no specific question was asked, return after generating the report
+                if question is None:
+                    return
         while True:
             if loop:
                 question = self.output_manager.display_user_input_prompt()
@@ -671,7 +687,6 @@ class InsightAI:
             self.output_manager.display_error(f"SQL Execution Error: {str(e)}")
             return None, None
 
-
     def get_db_schema(self):
         """Extract and format database schema."""
         try:
@@ -693,3 +708,215 @@ class InsightAI:
         except Exception as e:
             print(f"Error getting schema: {str(e)}")
             return None
+    def categorize_dataset(self, df_info=None):
+        """Identify the real-world category and domain of the dataset."""
+        import json
+        import re
+        
+        agent = 'Dataset Categorizer'
+        using_model, provider = models.get_model_name(agent)
+        
+        self.output_manager.display_tool_start(agent, using_model)
+        
+        if hasattr(self, 'conn'):  # For SQL databases
+            schema = self.get_db_schema()
+            dataset_info = f"SQL Database Schema:\n{schema}"
+        else:  # For DataFrames
+            dataset_info = df_info if df_info else utils.inspect_dataframe(self.df)
+        
+        messages = [{"role": "system", "content": self.dataset_categorizer_system},
+                    {"role": "user", "content": f"Analyze this dataset and determine its category:\n\n{dataset_info}"}]
+        
+        response = self.llm_call(self.log_and_call_manager, messages, agent=agent, chain_id=self.chain_id)
+        
+        # Extract JSON from response
+        json_match = re.search(r'\{.*\}', response, re.DOTALL)
+        if json_match:
+            try:
+                category_info = json.loads(json_match.group())
+                self.dataset_category = category_info
+                return category_info
+            except json.JSONDecodeError:
+                return {"domain": "Unknown", "category": "Unknown", "use_cases": [], "description": "Could not determine dataset category"}
+        
+        return {"domain": "Unknown", "category": "Unknown", "use_cases": [], "description": "Could not determine dataset category"}
+
+    def generate_questions(self, num_questions=5):
+        """Generate insightful questions based on the dataset category."""
+        import json
+        import re
+        
+        agent = 'Question Generator'
+        using_model, provider = models.get_model_name(agent)
+        
+        self.output_manager.display_tool_start(agent, using_model)
+        
+        if not self.dataset_category:
+            self.dataset_category = self.categorize_dataset()
+        
+        category_info = json.dumps(self.dataset_category, indent=2)
+        
+        # Format the prompt with the requested number of questions
+        prompt = self.question_generator_system.format(num_questions=num_questions)
+        
+        messages = [{"role": "system", "content": prompt},
+                    {"role": "user", "content": f"Generate {num_questions} insightful questions for this dataset:\n\n{category_info}"}]
+        
+        response = self.llm_call(self.log_and_call_manager, messages, agent=agent, chain_id=self.chain_id)
+        
+        # Extract JSON from response
+        json_match = re.search(r'\[.*\]', response, re.DOTALL)
+        if json_match:
+            try:
+                questions = json.loads(json_match.group())
+                self.report_questions = questions
+                return questions
+            except json.JSONDecodeError:
+                return [f"Could not generate questions: {response}"]
+        
+        return [f"Could not generate questions: {response}"]
+
+    def process_report_questions(self):
+        """Process each generated question and store the answers."""
+        import time
+        
+        if not self.report_questions:
+            self.report_questions = self.generate_questions()
+        
+        answers = []
+        
+        for question in self.report_questions:
+            self.output_manager.display_system_messages(f"Processing question: {question}")
+            
+            # Save original chain ID to restore after processing each question
+            original_chain_id = self.chain_id
+            
+            # Create a new chain ID for each question to keep logs separate
+            self.chain_id = int(time.time())
+            self.reset_messages_and_logs()
+            
+            # Use existing pipeline to process each question
+            file_type = '.db' if hasattr(self, 'conn') else '.csv'
+            
+            if file_type == '.db':
+                schema = self.get_db_schema()
+                analyst = 'SQL Analyst'
+                plan = None
+                
+                # Generate SQL code
+                code = self.generate_code(analyst, question, plan, self.code_messages, self.default_example_output_sql)
+                
+                # Execute SQL
+                answer, results = self.execute_sql(code, plan, question)
+            else:
+                analyst, plan, query_unknown, query_condition, requires_dataset, confidence = self.taskmaster(
+                    question, '' if self.df is None else self.df.columns.tolist()
+                )
+                
+                example_code = self.default_example_output_df if analyst == 'Data Analyst DF' else self.default_example_output_gen
+                
+                # Generate code
+                code = self.generate_code(analyst, question, plan, self.code_messages, example_code)
+                
+                # Execute code
+                answer, results, code = self.execute_code(analyst, code, plan, question, self.code_messages)
+            
+            answers.append({
+                "question": question,
+                "answer": answer,
+                "code": code,
+                "results": results
+            })
+            
+            # Restore original chain ID
+            self.chain_id = original_chain_id
+        
+        self.report_answers = answers
+        return answers
+
+    def compile_report(self):
+        """Compile questions and answers into a professional markdown report."""
+        import json
+        
+        agent = 'Report Generator'
+        using_model, provider = models.get_model_name(agent)
+        
+        self.output_manager.display_tool_start(agent, using_model)
+        
+        if not self.report_answers:
+            self.process_report_questions()
+        
+        # Prepare input for the report generator
+        category_info = json.dumps(self.dataset_category, indent=2)
+        
+        # Format answers for the report
+        answers_formatted = []
+        for item in self.report_answers:
+            answers_formatted.append({
+                "question": item["question"],
+                "answer": item["answer"],
+                # Only include code if debugging is enabled
+                "code": item["code"] if self.debug else None
+            })
+        
+        answers_info = json.dumps(answers_formatted, indent=2)
+        
+        messages = [{"role": "system", "content": self.report_generator_system},
+                    {"role": "user", "content": f"Generate a professional report based on this dataset analysis:\n\nDataset Category:\n{category_info}\n\nQuestions and Answers:\n{answers_info}"}]
+        
+        report_markdown = self.llm_call(self.log_and_call_manager, messages, agent=agent, chain_id=self.chain_id)
+        
+        # Save the report to a markdown file
+        report_filename = f"data_analysis_report_{self.chain_id}.md"
+        with open(report_filename, 'w') as f:
+            f.write(report_markdown)
+        
+        self.output_manager.display_system_messages(f"Report saved to {report_filename}")
+        
+        # Try to convert to PDF if required libraries are available
+        try:
+            from weasyprint import HTML
+            import markdown
+            
+            html = markdown.markdown(report_markdown, extensions=['tables', 'fenced_code'])
+            pdf_filename = f"data_analysis_report_{self.chain_id}.pdf"
+            HTML(string=html).write_pdf(pdf_filename)
+            self.output_manager.display_system_messages(f"PDF report saved to {pdf_filename}")
+        except ImportError:
+            self.output_manager.display_system_messages("PDF conversion requires markdown and weasyprint libraries. Install them with: pip install markdown weasyprint")
+        except Exception as e:
+            self.output_manager.display_system_messages(f"Error converting to PDF: {str(e)}")
+        
+        return report_markdown
+
+    def generate_data_report(self, num_questions=5):
+        """Generate a comprehensive data analysis report with the specified number of questions."""
+        import time
+        
+        # Initialize the process
+        chain_id = int(time.time())
+        self.chain_id = chain_id
+        self.reset_messages_and_logs()
+        
+        self.output_manager.display_system_messages("Starting comprehensive data report generation...")
+        
+        # Step 1: Categorize the dataset
+        self.output_manager.display_system_messages("Step 1/4: Categorizing dataset...")
+        self.dataset_category = self.categorize_dataset()
+        
+        # Step 2: Generate insightful questions
+        self.output_manager.display_system_messages(f"Step 2/4: Generating {num_questions} insightful questions...")
+        self.report_questions = self.generate_questions(num_questions)
+        
+        # Step 3: Process each question and collect answers
+        self.output_manager.display_system_messages("Step 3/4: Processing questions and generating answers...")
+        self.report_answers = self.process_report_questions()
+        
+        # Step 4: Compile the report
+        self.output_manager.display_system_messages("Step 4/4: Compiling professional report...")
+        report = self.compile_report()  # IMPORTANT: Use compile_report, not generate_report
+        
+        self.output_manager.display_system_messages("Report generation complete!")
+        self.log_and_call_manager.consolidate_logs()
+        
+        return report
