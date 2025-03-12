@@ -444,6 +444,7 @@ The dataframe df has already been defined and populated with the required data!
 Please make sure that your output contains a FULL, COMPLETE CODE that includes all steps, and solves the task!
 Always include the import statements at the top of the code.
 Always include print statements to output the results of your code.
+Always make the visualizations as png inside the [visualization] folder as well.
 """
 code_generator_system_gen = """
 You are an AI data analyst and your job is to assist users with data analysis, or any other tasks related to coding. 
@@ -676,6 +677,8 @@ Format your response as a JSON array of questions:
   "Question 4",
   "Question 5"
 ]
+
+Any question based on visualization must be saved as png in the [visualization] folder.
 """
 
 report_generator_system = """
@@ -685,8 +688,14 @@ The report should:
 1. Begin with an executive summary
 2. Include a brief description of the dataset and its category
 3. Present each question and its corresponding answer in a well-structured format
-4. Incorporate relevant visualizations where available
+4. Incorporate all visualizations at the exact locations they belong in the analysis
 5. End with key insights and recommendations
+
+VISUALIZATION GUIDELINES:
+- When a visualization_path is provided, you MUST include it using the exact path provided
+- Use the markdown syntax: ![Description](visualization/)
+- Do not use placeholder text like "path_to_image"
+- Include a sentence referencing the visualization, such as "As shown in the visualization below..."
 
 Format the report in professional Markdown that can be converted to a PDF. Use appropriate headers, bullet points, and formatting to make the report visually appealing and easy to navigate.
 

@@ -24,7 +24,8 @@ class InsightAI:
              debug: bool = False, 
              exploratory: bool = True,
              df_ontology: bool = False,
-             generate_report: bool = False):
+             generate_report: bool = False,
+             report_questions: int = 5):  # Add new parameter
         
         if db_path:
             import sqlite3
@@ -36,6 +37,7 @@ class InsightAI:
         self.output_manager = output_manager.OutputManager()
         
         self.report_enabled = generate_report  # IMPORTANT: Use report_enabled, not generate_report
+        self.report_question_count = report_questions  # Store question count
         self.dataset_category = None
         self.report_questions = []
         self.report_answers = []
@@ -358,7 +360,7 @@ class InsightAI:
         if self.report_enabled:  # IMPORTANT: Use report_enabled, not generate_report
                 self.output_manager.display_system_messages("Report generation enabled - starting comprehensive analysis")
                 # Generate report with 5 auto-generated questions
-                self.generate_data_report(num_questions=5)
+                self.generate_data_report(num_questions=self.report_question_count)
                 # If no specific question was asked, return after generating the report
                 if question is None:
                     return
@@ -777,7 +779,10 @@ class InsightAI:
         return [f"Could not generate questions: {response}"]
 
     def process_report_questions(self):
-        """Process each generated question and store the answers."""
+        """
+        Process each generated question, execute the analysis, and store answers.
+        Automatically captures and saves any visualizations created during analysis.
+        """
         import time
         
         if not self.report_questions:
@@ -785,7 +790,7 @@ class InsightAI:
         
         answers = []
         
-        for question in self.report_questions:
+        for i, question in enumerate(self.report_questions):
             self.output_manager.display_system_messages(f"Processing question: {question}")
             
             # Save original chain ID to restore after processing each question
@@ -849,7 +854,7 @@ class InsightAI:
         # Prepare input for the report generator
         category_info = json.dumps(self.dataset_category, indent=2)
         
-        # Format answers for the report
+        # Format answers for the report including visualization paths
         answers_formatted = []
         for item in self.report_answers:
             answers_formatted.append({
@@ -866,9 +871,9 @@ class InsightAI:
         
         report_markdown = self.llm_call(self.log_and_call_manager, messages, agent=agent, chain_id=self.chain_id)
         
-        # Save the report to a markdown file
+        # Save the report to a markdown file - with UTF-8 encoding
         report_filename = f"data_analysis_report_{self.chain_id}.md"
-        with open(report_filename, 'w') as f:
+        with open(report_filename, 'w', encoding='utf-8') as f:
             f.write(report_markdown)
         
         self.output_manager.display_system_messages(f"Report saved to {report_filename}")

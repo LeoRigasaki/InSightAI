@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 import yaml
 import numpy as np
+import pandas as pd 
 
 
 def ordinal(n):
@@ -54,26 +55,35 @@ def inspect_dataframe(df, log_and_call_manager=None,chain_id=None,query=None):
                 'count_of_nulls': int(df[column].isna().sum())
             }
 
-            # Check if the column is numerical
-            if np.issubdtype(df[column].dtype, np.number):
+            # Replace the numpy check with pandas type check
+            if pd.api.types.is_numeric_dtype(df[column]):
                 col_stats['mean'] = float(df[column].mean())
             
-            # Special handling for datetime columns
-            elif np.issubdtype(df[column].dtype, np.datetime64):
-                sorted_dates = np.sort(df[column].dropna())  # Sort dates and drop NaNs
-                if len(sorted_dates) > 1:
-                    intervals = np.diff(sorted_dates)  # Calculate differences between consecutive dates
-                    col_stats['interval_between_records'] = str(np.mean(intervals))
+            # Special handling for datetime columns and period types
+            elif pd.api.types.is_datetime64_dtype(df[column]) or hasattr(df[column].dtype, 'freq'):
+                try:
+                    non_null_values = df[column].dropna()
+                    if len(non_null_values) > 1:
+                        if pd.api.types.is_datetime64_dtype(df[column]):
+                            col_stats['first_date'] = str(non_null_values.iloc[0])
+                            col_stats['last_date'] = str(non_null_values.iloc[-1])
+                        else:  # Period type
+                            col_stats['first_period'] = str(non_null_values.iloc[0])
+                            col_stats['last_period'] = str(non_null_values.iloc[-1])
+                            col_stats['period_frequency'] = str(df[column].dtype.freq)
+                except Exception as e:
+                    col_stats['error'] = str(e)
 
-            # Handle non-numerical columns
+            # Handle all other columns
             else:
                 non_null_values = df[column].dropna()
                 if not non_null_values.empty:
                     col_stats['first_value'] = str(non_null_values.iloc[0])
                     col_stats['last_value'] = str(non_null_values.iloc[-1])
 
-            # Add the stats to the main dictionary, using the column name as the key
+            # Add the stats to the main dictionary
             stats_dict[column] = col_stats
+            
         # Convert dictionary to YAML format
         return yaml.dump(stats_dict, sort_keys=False, default_flow_style=False)
 
