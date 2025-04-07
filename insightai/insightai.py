@@ -102,6 +102,11 @@ class InsightAI:
             "dataset_categorizer_system",
             "question_generator_system",
             "report_generator_system",
+            "code_generator_system_cleaning",
+            "ml_model_suggester_system",
+            "solution_summarizer_system_cleaning",
+            "data_cleaning_planner_system",
+            "data_quality_analyzer_system",
         ]
 
         prompt_data = {}
@@ -305,6 +310,12 @@ class InsightAI:
             schema = self.get_db_schema()
             if schema:
                 self.eval_messages.append({"role": "user", "content": f"Database Schema:\n{schema}\n\nQuery: {question}"})
+
+        elif expert == 'Data Cleaning Expert':
+            agent = 'Data Cleaning Expert'
+            # Use our specialized flow for data cleaning
+            answer, results, code = self.process_data_cleaning(question, df_columns)
+            return agent, answer, None, None, True, 9  # High confidence
 
         elif expert == 'Data Analyst':
             self.select_analyst_messages.append({"role": "user", "content": self.analyst_selector_user.format(None if self.df is None else df_columns, question)})
@@ -522,7 +533,55 @@ class InsightAI:
                     results=self.code_exec_results or "No previous results"
                 )
             })
+        elif analyst == 'Data Cleaning Expert':
+            # Set the system prompt to the specialized cleaning prompt
+            if hasattr(self, 'code_generator_system_cleaning'):
+                code_messages[0] = {"role": "system", "content": self.code_generator_system_cleaning}
+            else:
+                # Fallback to prompt from module if attribute not set
+                code_messages[0] = {"role": "system", "content": prompts.code_generator_system_cleaning}
             
+            # Check if a user message already exists (from process_data_cleaning)
+            if not any(msg.get("role") == "user" for msg in code_messages):
+                # Gather comprehensive dataframe information for better code generation
+                if self.df is not None:
+                    # Get data types and missing value information
+                    missing_counts = self.df.isnull().sum()
+                    missing_percentages = (self.df.isnull().sum() / len(self.df) * 100).round(2)
+                    missing_info = pd.DataFrame({
+                        'Missing Count': missing_counts,
+                        'Missing Percentage': missing_percentages
+                    })
+                    
+                    # Create a comprehensive df_info with sample data and relevant stats
+                    df_info = (
+                        f"DataFrame Shape: {self.df.shape[0]} rows, {self.df.shape[1]} columns\n\n"
+                        f"Data Types:\n{self.df.dtypes.to_string()}\n\n"
+                        f"Missing Values:\n{missing_info.to_string()}\n\n"
+                        f"Sample Data (first 3 rows):\n{self.df.head(3)}"
+                    )
+                else:
+                    df_info = "No DataFrame information available"
+                
+                # Add user query with context formatted for clarity
+                code_messages.append({
+                    "role": "user",
+                    "content": f"""
+                    TASK: {question}
+
+                    CLEANING PLAN:
+                    {plan or "No plan provided"}
+
+                    DATAFRAME INFO:
+                    {df_info}
+
+                    PREVIOUS RESULTS:
+                    {self.code_exec_results or "No previous results"}
+
+                    EXAMPLE CODE:
+                    {example_code}
+                    """
+                            })
         # Handle DataFrame analysis path
         else:
             # Set DataFrame system message
@@ -925,3 +984,183 @@ class InsightAI:
         self.log_and_call_manager.consolidate_logs()
         
         return report
+        
+# Add to insightai.py class
+    def process_data_cleaning(self, question, df_columns):
+        """
+        Specialized agent flow for data cleaning and ML suggestion tasks
+        """
+        # Get actual dataframe information to prevent hallucination
+        df_info = ""
+        if self.df is not None:
+            # Get data types
+            df_info += f"Data Types:\n{self.df.dtypes.to_string()}\n\n"
+            # Get missing value counts
+            missing_counts = self.df.isnull().sum()
+            missing_percentages = (self.df.isnull().sum() / len(self.df) * 100).round(2)
+            missing_info = pd.DataFrame({
+                'Missing Count': missing_counts,
+                'Missing Percentage': missing_percentages
+            })
+            df_info += f"Missing Values:\n{missing_info.to_string()}\n\n"
+            # Add sample data
+            df_info += f"Sample Data (first 3 rows):\n{self.df.head(3)}"
+        
+        # 1. Run the data quality analyzer with actual data information
+        self.output_manager.display_system_messages("Starting data quality analysis...")
+        quality_analyzer_prompt = self.data_quality_analyzer_system.format(data=df_info)
+        quality_messages = [{"role": "system", "content": quality_analyzer_prompt}]
+        quality_messages.append({"role": "user", "content": f"Analyze this dataset information:\n{df_info}\n\nQuestion: {question}"})
+        
+        quality_analysis = self.llm_stream(
+            self.log_and_call_manager,
+            quality_messages,
+            agent="Data Quality Analyzer",
+            chain_id=self.chain_id
+        )
+        
+        # Save the quality analysis
+        quality_messages.append({"role": "assistant", "content": quality_analysis})
+        
+        # 2. Create the cleaning plan
+        self.output_manager.display_system_messages("Creating data cleaning plan...")
+        cleaning_planner_prompt = self.data_cleaning_planner_system.format(data=quality_analysis)
+        cleaning_plan_messages = [{"role": "system", "content": cleaning_planner_prompt}]
+        cleaning_plan_messages.append({"role": "user", "content": f"Based on this quality analysis, create a cleaning plan:\n{quality_analysis}\n\nQuestion: {question}"})
+        
+        cleaning_plan = self.llm_stream(
+            self.log_and_call_manager,
+            cleaning_plan_messages,
+            agent="Data Cleaning Planner",
+            chain_id=self.chain_id
+        )
+        
+        # Save the cleaning plan
+        cleaning_plan_messages.append({"role": "assistant", "content": cleaning_plan})
+        
+        # 3. Generate cleaning code
+        self.output_manager.display_system_messages("Generating data cleaning code...")
+        
+        # Modify code messages for cleaning
+        self.code_messages[0] = {"role": "system", "content": self.code_generator_system_cleaning}
+        
+        # Add cleaning context to code generation
+        self.code_messages.append({
+            "role": "user",
+            "content": f"""
+            TASK: {question}
+            
+            DATA INFORMATION:
+            {df_info}
+            
+            DATA QUALITY ANALYSIS:
+            {quality_analysis}
+            
+            CLEANING PLAN:
+            {cleaning_plan}
+            
+            Please generate code that implements this cleaning plan and prepares the data for machine learning.
+            """
+        })
+        
+        # Generate the cleaning code
+        cleaning_code = self.generate_code(
+            "Data Cleaning Expert", 
+            question, 
+            cleaning_plan, 
+            self.code_messages, 
+            self.default_example_output_df
+        )
+        
+        # 4. Execute the cleaning code
+        self.output_manager.display_system_messages("Executing data cleaning code...")
+        cleaning_result, execution_output, final_code = self.execute_code(
+            "Data Cleaning Expert",
+            cleaning_code,
+            cleaning_plan,
+            question,
+            self.code_messages
+        )
+        
+        # 5. ML Model Suggestion
+        self.output_manager.display_system_messages("Generating ML model suggestions...")
+        ml_suggestion_prompt = self.ml_model_suggester_system.format(data=f"{df_info}\n\n{quality_analysis}\n\n{cleaning_plan}\n\n{execution_output}")
+        ml_suggestion_messages = [{"role": "system", "content": ml_suggestion_prompt}]
+        ml_suggestion_messages.append({
+            "role": "user", 
+            "content": f"""
+            ORIGINAL QUESTION: {question}
+            
+            DATA INFORMATION:
+            {df_info}
+            
+            DATA QUALITY ANALYSIS:
+            {quality_analysis}
+            
+            CLEANING IMPLEMENTED:
+            {cleaning_plan}
+            
+            CLEANING RESULTS:
+            {execution_output}
+            
+            Based on this information, please recommend suitable machine learning models and approaches.
+            """
+        })
+        
+        ml_suggestions = self.llm_stream(
+            self.log_and_call_manager,
+            ml_suggestion_messages,
+            agent="ML Model Suggester",
+            chain_id=self.chain_id
+        )
+        
+        # 6. Final summary combining cleaning results and ML suggestions
+        final_summary = self.summarise_solution_cleaning(
+            question, 
+            cleaning_plan, 
+            execution_output, 
+            ml_suggestions
+        )
+        
+        return final_summary, execution_output, final_code
+    
+# Add to insightai.py class
+    def summarise_solution_cleaning(self, original_question, cleaning_plan, execution_output, ml_suggestions):
+        """Specialized summarizer for cleaning and ML suggestions"""
+        agent = 'Solution Summarizer'
+
+        # Initialize the messages list with a user message containing the task prompt
+        insights_messages = [{
+            "role": "user", 
+            "content": f"""
+            The user asked: "{original_question}"
+            
+            You implemented a data cleaning plan:
+            {cleaning_plan}
+            
+            The code execution produced these results:
+            {execution_output}
+            
+            ML model suggestions were provided:
+            {ml_suggestions}
+            
+            Please provide a comprehensive summary that includes:
+            1. A clear breakdown of the data quality issues that were identified
+            2. The cleaning techniques applied and their effectiveness 
+            3. Before/after metrics showing improvement
+            4. Machine learning model recommendations based on the cleaned data
+            5. Next steps the user could take for their ML project
+            
+            Make your summary clear, concise, and highlight key improvements and recommendations.
+            """
+        }]
+        
+        # Call the LLM
+        summary = self.llm_call(
+            self.log_and_call_manager,
+            insights_messages,
+            agent=agent, 
+            chain_id=self.chain_id
+        )
+
+        return summary
