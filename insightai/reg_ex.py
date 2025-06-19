@@ -87,7 +87,7 @@ def _extract_rank(response: str) -> str:
 def _extract_expert(response: str) -> str:
     """Extract expert type and metadata from JSON response."""
     # Updated pattern to include SQL Analyst
-    pattern = r'Data Analyst|Research Specialist|SQL Analyst'
+    pattern = r'Data Analyst|Research Specialist|SQL Analyst|Data Analyst DF|Data Analyst Generic'
     json_segment = re.findall(r'```(?:json\s*)?(.*?)\s*```', response, re.DOTALL)
 
     if json_segment:
@@ -99,7 +99,8 @@ def _extract_expert(response: str) -> str:
         )
         data = json.loads(json_segment)
         return data['expert'], data['requires_dataset'], data['confidence']
-    
+    if 'Data Analyst' in response:
+        return 'Data Analyst DF', None, None
     # Fallback to pattern matching
     match = re.search(pattern, response)
     return (match.group(), None, None) if match else (None, None, None)

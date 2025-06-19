@@ -25,7 +25,8 @@ class InsightAI:
              exploratory: bool = True,
              df_ontology: bool = False,
              generate_report: bool = False,
-             report_questions: int = 5):  # Add new parameter
+             report_questions: int = 5,
+             diagram: bool = False):  # Add new parameter
         
         if db_path:
             import sqlite3
@@ -41,6 +42,7 @@ class InsightAI:
         self.dataset_category = None
         self.report_questions = []
         self.report_answers = []
+        self.diagram_enabled = diagram
 
         # Check if the OPENAI_API_KEY environment variable is set
         if not os.getenv('OPENAI_API_KEY'):
@@ -107,6 +109,7 @@ class InsightAI:
             "solution_summarizer_system_cleaning",
             "data_cleaning_planner_system",
             "data_quality_analyzer_system",
+            "diagram_generator_system",
         ]
 
         prompt_data = {}
@@ -180,7 +183,14 @@ class InsightAI:
                 'llama-3-groq-8b-preview': {'prompt_tokens': 0.00019, 'completion_tokens': 0.00019},
                 'llama-guard-3-8b': {'prompt_tokens': 0.00020, 'completion_tokens': 0.00020},
                 'llama-3.2-11b-vision': {'prompt_tokens': 0.00018, 'completion_tokens': 0.00018},
-                'llama-3.2-90b-vision': {'prompt_tokens': 0.00090, 'completion_tokens': 0.00090}
+                'llama-3.2-90b-vision': {'prompt_tokens': 0.00090, 'completion_tokens': 0.00090},
+                'gemini-2.5-flash-preview-04-17': {'prompt_tokens': 0.0, 'completion_tokens': 0.0},
+                'gemini-2.5-pro-preview-03-25': {'prompt_tokens': 0.0, 'completion_tokens': 0.0},  
+                'gemini-2.0-flash': {'prompt_tokens': 0.0001, 'completion_tokens': 0.0004},        
+                'gemini-2.0-flash-lite': {'prompt_tokens': 0.000075, 'completion_tokens': 0.0003}, 
+                'gemini-1.5-flash': {'prompt_tokens': 0.000075, 'completion_tokens': 0.0003},      
+                'gemini-1.5-flash-8b': {'prompt_tokens': 0.000025, 'completion_tokens': 0.0001},   
+                'gemini-1.5-pro': {'prompt_tokens': 0.00025, 'completion_tokens': 0.00075}         
             }
         self.log_and_call_manager = log_manager.LogAndCallManager(self.token_cost_dict)
         self.chain_id = None
@@ -320,9 +330,14 @@ class InsightAI:
         elif expert == 'Data Analyst':
             self.select_analyst_messages.append({"role": "user", "content": self.analyst_selector_user.format(None if self.df is None else df_columns, question)})
             analyst, query_unknown, query_condition = self.select_analyst(self.select_analyst_messages)
+            
+            # Handle case where analyst couldn't be properly determined
+            if not analyst:
+                analyst = 'Data Analyst DF'  # Default to DF since we have a dataframe
+                
             self.select_analyst_messages.append({"role": "assistant", "content": f"analyst:{analyst},unknown:{query_unknown},condition:{query_condition}"})
 
-            if analyst == 'Data Analyst DF':
+            if analyst == 'Data Analyst DF' or analyst == 'Data Analyst':  # Added 'Data Analyst'
                 agent = 'Planner'
                 example_plan = self.default_example_plan_df
                 if self.df_ontology:
@@ -375,6 +390,9 @@ class InsightAI:
                 # If no specific question was asked, return after generating the report
                 if question is None:
                     return
+        # Check if diagram generation is enabled
+        if self.diagram_enabled:
+            self.output_manager.display_system_messages("Diagram generation enabled - a Mermaid flowchart will be created")
         while True:
             if loop:
                 question = self.output_manager.display_user_input_prompt()
@@ -497,6 +515,14 @@ class InsightAI:
         self.code_exec_results = results
 
         summary = self.summarise_solution(original_question, plan, results)
+
+        # Generate Mermaid diagram if enabled
+        if self.diagram_enabled:
+            file_type = '.csv'
+            mermaid_code = self.generate_mermaid_diagram(summary, original_question, file_type)
+            
+            # Display a message about the diagram
+            self.output_manager.display_system_messages("Mermaid diagram generated for the analysis flow")
 
         # Reset the StringIO buffer
         output.truncate(0)
@@ -742,6 +768,15 @@ class InsightAI:
             
             # Combine all results
             summary = "\n".join(results)
+
+            # Generate Mermaid diagram if enabled
+            if self.diagram_enabled:
+                file_type = '.db'
+                mermaid_code = self.generate_mermaid_diagram(summary, question, file_type)
+                
+                # Display a message about the diagram
+                self.output_manager.display_system_messages("Mermaid diagram generated for the SQL analysis flow")
+                
             return summary, query
 
         except Exception as e:
@@ -1164,3 +1199,47 @@ class InsightAI:
         )
 
         return summary
+    def generate_mermaid_diagram(self, summary, question, file_type):
+        """
+        Generate a Mermaid flowchart diagram based on the analysis flow and results.
+        
+        Args:
+            summary (str): The solution summary generated by the solution summarizer
+            question (str): The original question asked by the user
+            file_type (str): The type of file analyzed (.csv or .db)
+            
+        Returns:
+            str: Mermaid diagram code
+        """
+        agent = 'Diagram Generator'
+        using_model, provider = models.get_model_name('Solution Summarizer')  # Reuse Solution Summarizer's model
+        
+        self.output_manager.display_tool_start(agent, using_model)
+        
+        # Call the LLM to generate the diagram
+        messages = [{"role": "system", "content": self.diagram_generator_system},
+                    {"role": "user", "content": f"Original Question: {question}\n\nAnalysis Summary: {summary}\n\nFile Type: {file_type}"}]
+        
+        mermaid_code = self.llm_call(self.log_and_call_manager, messages, agent=agent, chain_id=self.chain_id)
+        
+        # Clean up the response to ensure it's valid Mermaid code
+        # Remove any potential markdown backticks
+        mermaid_code = mermaid_code.replace("```mermaid", "").replace("```", "").strip()
+        
+        # Ensure the diagram starts with flowchart TD
+        if not mermaid_code.startswith("flowchart TD") and not mermaid_code.startswith("graph TD"):
+            mermaid_code = "flowchart TD\n" + mermaid_code
+        
+        # Save the diagram to a file in the visualization directory
+        visualization_dir = os.getenv('VISUALIZATION_DIR', 'visualization')
+        os.makedirs(visualization_dir, exist_ok=True)
+        
+        diagram_filename = f"analysis_flow_{self.chain_id}.mmd"
+        diagram_path = os.path.join(visualization_dir, diagram_filename)
+        
+        with open(diagram_path, 'w', encoding='utf-8') as f:
+            f.write(mermaid_code)
+        
+        self.output_manager.display_system_messages(f"Mermaid diagram saved to {diagram_path}")
+        
+        return mermaid_code 

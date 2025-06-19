@@ -79,6 +79,7 @@ def llm_call(log_and_call_manager, messages: str, agent: str = None, chain_id: s
     provider_function_map = {
         'groq': 'llm_call',
         'openai': 'llm_call',
+        'gemini': 'llm_call',
     }
 
     if provider not in provider_function_map:
@@ -119,6 +120,7 @@ def llm_stream(log_and_call_manager, messages: str, agent: str = None,
     provider_function_map = {
         'groq': 'llm_stream',
         'openai': 'llm_stream',
+        'gemini': 'llm_stream',
     }
 
     if provider not in provider_function_map:
