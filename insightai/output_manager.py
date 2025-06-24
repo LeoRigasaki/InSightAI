@@ -1,3 +1,4 @@
+import re
 from termcolor import cprint
 from IPython.display import display, HTML, Markdown
 import sys
@@ -23,7 +24,7 @@ class OutputManager:
         self.color_token_summary_header_ntb = 'blue'
         self.color_token_summary_text_ntb = '#555555'
         self.color_token_summary_cli = 'yellow'
-    
+
     # Display the results of the analysis
     def display_results(self, df=None, answer=None, code=None, rank=None, vector_db=False):
         if 'ipykernel' in sys.modules:
@@ -49,6 +50,7 @@ class OutputManager:
             if code is not None:
                 cprint(f"\n>> Here is the final code that accomplishes the task:", self.color_result_header_cli, attrs=['bold'])
                 self.print_wrapper(code)
+            
             if vector_db and rank is not None:
                 cprint(f"\n>> Solution Rank:", self.color_result_header_cli, attrs=['bold'])
                 self.print_wrapper(rank)
@@ -184,6 +186,4 @@ class OutputManager:
         formatted_message = message
         
         print(formatted_message, end=end, flush=flush)
-
-
-
+        

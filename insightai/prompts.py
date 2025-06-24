@@ -455,6 +455,23 @@ Please make sure that your output contains a FULL, COMPLETE CODE that includes a
 Always include the import statements at the top of the code.
 Always include print statements to output the results of your code.
 Always make the visualizations as png inside the [visualization] folder as well.
+Always store the visualization data points in following variable "output_plot" as type dict:
+output_plot = {
+  "type": "bar",#or other chart type
+  "data": {
+    "x": [...],
+    "y": [...],
+    "z": [...],               # optional for 3D
+    "k": [...],               # optional for 4D
+    
+    "labels": [...],          # optional for labels
+    "colors": [...],          # optional for colors
+  },
+  "meta": {
+    "title": "My Chart"
+  }
+}
+Print output_plot variable immidiately.
 """
 code_generator_system_gen = """
 You are an AI data analyst and your job is to assist users with data analysis, or any other tasks related to coding. 
@@ -464,6 +481,22 @@ The user will provide the task formulated as a list of steps to be solved using 
 Please make sure that your output contains a FULL, COMPLETE CODE that includes all steps, and solves the task!
 Always include the import statements at the top of the code.
 Always include print statements to output the results of your code.
+Always store the visualization data points in following variable "output_plot" as type dict:
+output_plot = {
+  "type": "bar",#or other chart type
+  "data": {
+    "x": [...],
+    "y": [...],
+    "z": [...],               # optional for 3D
+    "k": [...],               # optional for 4D
+    "labels": [...],          # optional for labels
+    "colors": [...],          # optional for colors
+  },
+  "meta": {
+    "title": "My Chart"
+  }
+}
+Print output_plot variable immidiately.
 """
 code_generator_user_df = """
 TASK:
@@ -656,8 +689,8 @@ dataset_categorizer_system = """
 You are a dataset classification expert. Your task is to analyze the structure and content of a dataset and identify its real-world category and domain.
 
 Examine the provided dataset information (schema, sample data, etc.) and determine:
-1. The general domain/industry the dataset belongs to (e.g., healthcare, finance, retail, technology)
-2. The specific category within that domain (e.g., patient records, stock prices, sales data, product specifications)
+1. The general domain/industry the dataset belongs to (e.g., healthcare, finance, retail, technology,traffic)
+2. The specific category within that domain (e.g., patient records, stock prices, sales data, product specifications, traffic incidents, cars data)
 3. The potential business use cases for this dataset
 
 Format your response as a JSON object with the following fields:

@@ -33,6 +33,8 @@ class InsightAI:
             self.conn = sqlite3.connect(db_path)
             self.cur = self.conn.cursor()
         self.df = df if df is not None else None
+
+        self.output_plot = None  # Initialize plot output variable
         
         # Output
         self.output_manager = output_manager.OutputManager()
@@ -438,7 +440,14 @@ class InsightAI:
                 self.df if file_type == '.csv' else None,
                 answer, code, None, False
             )
-            
+            # if isinstance(self.output_plot, dict):
+            #     print("Output Plot (dict):", self.output_plot)
+            #     print("x:", self.output_plot.get("data", {}).get("x", None))
+            #     print("y:", self.output_plot.get("y"))
+            # elif isinstance(self.output_plot, str):
+            #     print("Output Plot (string):", self.output_plot)
+            # else:
+            #     print(type(self.output_plot))
             self.log_and_call_manager.print_summary_to_terminal()
             
             if not loop:
@@ -462,12 +471,17 @@ class InsightAI:
         llm_response = self.llm_stream(self.log_and_call_manager, debug_messages, agent=agent, chain_id=self.chain_id)
         
         # Extract the code from the API response
-        debugged_code = self._extract_code(llm_response,analyst,provider)       
+        res = self._extract_code(llm_response,analyst,provider)       
+        if res[1] is None:
+            debugged_code = res[0]
+        else:
+            debugged_code , self.output_plot = res[0], res[1]
         self.output_manager.display_tool_end(agent)
 
         return debugged_code
     def execute_code(self, analyst, code, plan, original_question, code_messages):
         agent = 'Code Executor'
+        print("Executing code...")
         # Initialize error correction counter
         error_corrections = 0
 
@@ -485,10 +499,9 @@ class InsightAI:
 
                     # Execute the code
                     if code is not None:
-                        local_vars = {'df': self.df} # Create a local variable to store the dataframe
+                        local_vars = {'df': self.df,'output_plot':self.output_plot} # Create a local variable to store the dataframe
                         exec(code, local_vars) # Execute the code
                         self.df = local_vars['df'] # Update the dataframe with the local variable
-
                         # Remove examples from the messages list to minimize the number of tokens used
                         code_messages = self._remove_examples(code_messages)
                     break
@@ -649,10 +662,14 @@ class InsightAI:
         if analyst == 'SQL Analyst':
             code = self._extract_sql_query(llm_response)
         else:
-            code = self._extract_code(llm_response, analyst, provider)
+            code,self.output_plot= self._extract_code(llm_response, analyst, provider, extract_dict=True)
+            
+                
             
         if self.debug:
             print(f"Generated Code: {code}")
+            
+            print(f"Output Plot: {self.output_plot}")
             
         return code
     
@@ -687,7 +704,7 @@ class InsightAI:
         llm_response = self.llm_call(self.log_and_call_manager,code_messages,agent=agent, chain_id=self.chain_id)
         code_messages.append({"role": "assistant", "content": llm_response})
         code = self._extract_code(llm_response,analyst,provider)
-
+        
         return code, code_messages
 
     def rank_code(self,results, code, question):
@@ -918,8 +935,9 @@ class InsightAI:
                 code = self.generate_code(analyst, question, plan, self.code_messages, example_code)
                 
                 # Execute code
+                print("Executing code for question:", question)
                 answer, results, code = self.execute_code(analyst, code, plan, question, self.code_messages)
-            
+                print("HERE IS THE PLOTT",self.output_plot)
             answers.append({
                 "question": question,
                 "answer": answer,
