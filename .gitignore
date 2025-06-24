@@ -12,3 +12,6 @@ test.py
 *.json
 .pypirc
 .env
+*.png
+*.md
+*.mmd
