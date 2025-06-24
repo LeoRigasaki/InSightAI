@@ -440,20 +440,21 @@ class InsightAI:
                 self.df if file_type == '.csv' else None,
                 answer, code, None, False
             )
-            # if isinstance(self.output_plot, dict):
-            #     print("Output Plot (dict):", self.output_plot)
-            #     print("x:", self.output_plot.get("data", {}).get("x", None))
-            #     print("y:", self.output_plot.get("y"))
-            # elif isinstance(self.output_plot, str):
-            #     print("Output Plot (string):", self.output_plot)
-            # else:
-            #     print(type(self.output_plot))
+            print("CONVERSE:")
+            if isinstance(self.output_plot, dict):
+                print("Output Plot (dict):", self.output_plot)
+                print("x:", self.output_plot.get("data", {}).get("x", None))
+                print("y:", self.output_plot.get("y"))
+            elif isinstance(self.output_plot, str):
+                print("Output Plot (string):", self.output_plot)
+            else:
+                print(type(self.output_plot))
             self.log_and_call_manager.print_summary_to_terminal()
             
             if not loop:
                 self.log_and_call_manager.consolidate_logs()
                 return 
-            
+            # return self.output_plot
     ######################
     ### Code Functions ###
     ######################
