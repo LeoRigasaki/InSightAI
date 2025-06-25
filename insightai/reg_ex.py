@@ -7,15 +7,15 @@ def _normalize_indentation(code_segment: str) -> str:
     min_indent = min(len(re.match(r'^\s*', line).group()) for line in lines if line.strip())
     return '\n'.join(line[min_indent:] for line in lines)
 
-def _extract_code(response: str, analyst: str, provider: str,extract_dict:bool=False) -> str:
+def _extract_code(response: str, analyst: str, provider: str, extract_dict: bool = False):
     """Extract and clean code from LLM response based on analyst type."""
     # Handle different response formats
     response = re.sub(re.escape("<|im_sep|>"), "```", response)
     
-    output_plot_match=None
+    output_plot_match = None
 
     if extract_dict:
-        pattern = rf"{"output_plot"}\s*=\s*({{.*?}})"
+        pattern = rf"output_plot\s*=\s*({{.*?}})"
         match = re.search(pattern, response, re.DOTALL)
         if match:
             output_plot_match = match.group(1).strip()
@@ -30,7 +30,13 @@ def _extract_code(response: str, analyst: str, provider: str,extract_dict:bool=F
             sql = re.sub(r'^\s*--.*$', '', sql, flags=re.MULTILINE)
             # Remove empty lines
             sql = '\n'.join(line for line in sql.split('\n') if line.strip())
+            # For SQL analysts, always return consistent format
+            if extract_dict:
+                return sql, output_plot_match
             return sql
+        # If no SQL found, return consistent format
+        if extract_dict:
+            return None, output_plot_match
         return None
 
     # Define security blacklist for Python code
@@ -47,6 +53,9 @@ def _extract_code(response: str, analyst: str, provider: str,extract_dict:bool=F
         code_segments = re.findall(r'\[PYTHON\](.*?)\[/PYTHON\]', response, re.DOTALL)
 
     if not code_segments:
+        # No code found - return consistent format
+        if extract_dict:
+            return None, output_plot_match
         return None
 
     # Process code segments
@@ -56,7 +65,6 @@ def _extract_code(response: str, analyst: str, provider: str,extract_dict:bool=F
     # Remove DataFrame initialization
     code = re.sub(r"df\s*=\s*pd\.read_csv\((.*?)\)", "", code)
     
-        
     # Handle local model specifics
     if analyst == "Data Analyst DF" and provider == "local":
         if re.search(r"data=pd\.", code):
@@ -70,10 +78,11 @@ def _extract_code(response: str, analyst: str, provider: str,extract_dict:bool=F
     # Replace blacklisted items
     pattern = r"^(.*\b(" + "|".join(blacklist) + r")\b.*)$"
     code = re.sub(pattern, r"# not allowed \1", code, flags=re.MULTILINE)
-    if output_plot_match:
+    
+    # Always return consistent format based on extract_dict parameter
+    if extract_dict:
         return code.strip(), output_plot_match
     return code.strip()
-
 def _extract_sql_query(response: str) -> str:
     """Extract SQL queries from LLM response.
     Only extracts content within SQL code blocks and cleans it up.
