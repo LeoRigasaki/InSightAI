@@ -1,0 +1,31 @@
+flowchart TD
+    A["Raw Data CSV"] --> B[Handle Missing Values]
+    B --> C["Median Imputation for avg_rating"]
+    A --> D[Check Data Types]
+    D --> E["Correct Data Types for price and avg_rating"]
+    A --> F[Identify Outliers]
+    F --> G["IQR Method for Outlier Removal"]
+    A --> H[Generate Summary Statistics]
+    H --> I["Price Mean: 22,872, SD: 13,771"]
+    H --> J["Avg Rating Mean: 7.86, SD: 0.66"]
+    I --> K{{"Calculate Correlation"}}
+    J --> K
+    K --> L>0.61 Moderate Positive Correlation]
+    G --> M[Scale Features]
+    M --> N["StandardScaler Applied"]
+    N --> O>Data Cleaning Validation Report]
+    O --> P["No Missing Values, Correct Types, Outliers Handled"]
+    
+    subgraph ML_Recommendations
+        Q["Select ML Models"] --> R["Random Forest Regressor"]
+        Q --> S["Gradient Boosting Regressor"]
+        Q --> T["Linear Regression"]
+        Q --> U["Support Vector Regressor"]
+        Q --> V["Evaluation Metrics: MAE, MSE, R-squared"]
+        Q --> W["Feature Engineering: Interaction Terms, Encoding"]
+    end
+    
+    P --> X["Prepare Data for Modeling"]
+    X --> Q
+    X --> Y["Cross-Validation and Hyperparameter Tuning"]
+    Y --> Z["Evaluate on Validation Set"]

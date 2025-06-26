@@ -305,7 +305,21 @@ git clone https://github.com/LeoRigasaki/InSightAI.git
 cd InsightAI
 pip install -e ".[dev]"
 ```
+## 🆕 Version 0.5.0 Release Notes
 
+### ✨ New Features
+- **Dynamic API Key Management**: Only requires API keys for providers you actually use
+- **Flexible Provider Support**: Mix and match OpenAI, Groq, and Gemini models freely
+- **Cost Optimization**: Reduced overhead by eliminating unused API dependencies
+
+### 🔧 Improvements  
+- Smarter LLM configuration parsing
+- Better error messages for missing API keys
+- Enhanced provider validation
+
+### 🐛 Bug Fixes
+- Fixed requirement for all API keys even when not needed
+- Improved initialization error handling
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.

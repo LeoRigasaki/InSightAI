@@ -44,13 +44,8 @@ class InsightAI:
         self.report_answers = []
         self.diagram_enabled = diagram
 
-        # Check if the OPENAI_API_KEY environment variable is set
-        if not os.getenv('OPENAI_API_KEY'):
-            raise EnvironmentError("OPENAI_API_KEY environment variable not found.")
-        
-        # Check if the GROQ_API_KEY environment variable is set
-        if not os.getenv('GROQ_API_KEY'):
-            raise EnvironmentError("GROQ_API_KEY environment variable not found.")
+        # FIXED: Dynamic API key checking based on LLM config
+        self._check_required_api_keys()
 
         self.MAX_ERROR_CORRECTIONS = 5
         # Set the maximum number of question/answer pairs to be kept in the conversation memory
@@ -200,6 +195,40 @@ class InsightAI:
         self.select_analyst_messages = [{"role": "system", "content": self.analyst_selector_system}]
         self.eval_messages = [{"role": "system", "content": self.planner_system.format(utils.get_readable_date())}]
         self.code_messages = [{"role": "system", "content": self.code_generator_system_df}]
+
+    def _check_required_api_keys(self):
+        """Check only the API keys that are actually needed based on LLM config"""
+        try:
+            # Load the LLM configuration
+            llm_config = models.load_llm_config()
+            
+            # Extract unique providers from the config 
+            providers_used = set()
+            for agent_config in llm_config:
+                provider = agent_config.get('details', {}).get('provider', 'openai')
+                providers_used.add(provider.lower())
+            
+            # Check API keys only for the providers being used
+            missing_keys = []
+            
+            if 'openai' in providers_used and not os.getenv('OPENAI_API_KEY'):
+                missing_keys.append('OPENAI_API_KEY')
+                
+            if 'groq' in providers_used and not os.getenv('GROQ_API_KEY'):
+                missing_keys.append('GROQ_API_KEY')
+                
+            if 'gemini' in providers_used and not os.getenv('GEMINI_API_KEY'):
+                missing_keys.append('GEMINI_API_KEY')
+            
+            if missing_keys:
+                missing_keys_str = ', '.join(missing_keys)
+                raise EnvironmentError(f"Missing required API key(s) for configured providers: {missing_keys_str}")
+                
+        except Exception as e:
+            # If there's any error loading config, fall back to requiring OpenAI key (default behavior)
+            if not os.getenv('OPENAI_API_KEY'):
+                raise EnvironmentError("OPENAI_API_KEY environment variable not found.")
+
     ######################
     ### Util Functions ###
     ######################
@@ -1242,4 +1271,4 @@ class InsightAI:
         
         self.output_manager.display_system_messages(f"Mermaid diagram saved to {diagram_path}")
         
-        return mermaid_code 
+        return mermaid_code
