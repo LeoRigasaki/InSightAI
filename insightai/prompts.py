@@ -454,8 +454,8 @@ The dataframe df has already been defined and populated with the required data!
 Please make sure that your output contains a FULL, COMPLETE CODE that includes all steps, and solves the task!
 Always include the import statements at the top of the code.
 Always include print statements to output the results of your code.
-Always make the visualizations as png inside the [visualization] folder as well.
-Always store the visualization data points in following variable "output_plot" as type dict:
+Always make the visualizations using plotly as .json inside the [visualization] folder as well.
+Always store the visualization column names in following variable "output_plot" as type dict:
 output_plot = {
   "type": "bar",#or other chart type
   "data": {
@@ -481,7 +481,8 @@ The user will provide the task formulated as a list of steps to be solved using 
 Please make sure that your output contains a FULL, COMPLETE CODE that includes all steps, and solves the task!
 Always include the import statements at the top of the code.
 Always include print statements to output the results of your code.
-Always store the visualization data points in following variable "output_plot" as type dict:
+Make Visualizations using plotly as .json file inside the [visualization] folder.
+Always store the visualization column names in following variable "output_plot" as type dict:
 output_plot = {
   "type": "bar",#or other chart type
   "data": {
@@ -721,7 +722,7 @@ Format your response as a JSON array of questions:
   "Question 5"
 ]
 
-Any question based on visualization must be saved as png in the [visualization] folder.
+Any question based on visualization must be saved as .json in the [visualization] folder.
 """
 
 report_generator_system = """
@@ -753,7 +754,7 @@ The dataframe df has already been defined and populated with the required data!
 Please make sure that your output contains a FULL, COMPLETE CODE that includes all steps, and solves the task!
 Always include the import statements at the top of the code.
 Always include print statements to output the results of your code.
-Always make the visualizations as png inside the [visualization] folder as well.
+Always make the visualizations using plotly as .json inside the [visualization] folder as well.
 Always save the cleaned dataframe as a cleaned_data.csv file
 """
 # Add to prompts.py
@@ -829,6 +830,7 @@ Focus on these essential cleaning tasks in order of importance:
 4. Preparing categorical variables (encoding)
 5. Scaling/normalizing numeric features
 6. Feature engineering if beneficial for ML
+7. If generating vizualization(plotly as html),save it as well in the visualization folder
 
 Format your response as a YAML plan with ordered steps:
 
@@ -848,7 +850,7 @@ data_validation:
   - "Ensure numeric distributions are appropriate for modeling"
 ```
 
-Keep your plan concise, practical, and directly related to the issues identified in the quality analysis. Avoid hallucinating problems not evident in the data.
+Keep your plan concise, practical, and directly related to the issues identified in the quality analysis. Avoid hallucinating problems not evident in the data.Avoid unnecessary details.
 """
 
 # Add this to prompts.py

@@ -8,6 +8,8 @@ import warnings
 import traceback
 import sys
 import json
+from threading import *
+
 warnings.filterwarnings('ignore')
 
 try:
@@ -47,12 +49,12 @@ class InsightAI:
         self.diagram_enabled = diagram
 
         # Check if the OPENAI_API_KEY environment variable is set
-        if not os.getenv('OPENAI_API_KEY'):
-            raise EnvironmentError("OPENAI_API_KEY environment variable not found.")
+        # if not os.getenv('OPENAI_API_KEY'):
+        #     raise EnvironmentError("OPENAI_API_KEY environment variable not found.")
         
         # Check if the GROQ_API_KEY environment variable is set
-        if not os.getenv('GROQ_API_KEY'):
-            raise EnvironmentError("GROQ_API_KEY environment variable not found.")
+        # if not os.getenv('GROQ_API_KEY'):
+        #     raise EnvironmentError("GROQ_API_KEY environment variable not found.")
 
         self.MAX_ERROR_CORRECTIONS = 5
         # Set the maximum number of question/answer pairs to be kept in the conversation memory
@@ -429,7 +431,8 @@ class InsightAI:
 
             # Generate and execute code
             code = self.generate_code(analyst, question, plan, self.code_messages, example_code)
-            
+           
+
             if file_type == '.db':
                 answer, results = self.execute_sql(code, plan, question)
             else:
@@ -441,12 +444,14 @@ class InsightAI:
                 answer, code, None, False
             )
             print("CONVERSE:")
+            print("SElf.df:", self.df.head(4))
             if isinstance(self.output_plot, dict):
                 print("Output Plot (dict):", self.output_plot)
                 print("x:", self.output_plot.get("data", {}).get("x", None))
                 print("y:", self.output_plot.get("y"))
             elif isinstance(self.output_plot, str):
                 print("Output Plot (string):", self.output_plot)
+
             else:
                 print(type(self.output_plot))
             self.log_and_call_manager.print_summary_to_terminal()
@@ -503,6 +508,7 @@ class InsightAI:
                         local_vars = {'df': self.df,'output_plot':self.output_plot} # Create a local variable to store the dataframe
                         exec(code, local_vars) # Execute the code
                         self.df = local_vars['df'] # Update the dataframe with the local variable
+                        print("HELLO:", self.df.head(4))
                         # Remove examples from the messages list to minimize the number of tokens used
                         code_messages = self._remove_examples(code_messages)
                     break
@@ -921,6 +927,7 @@ class InsightAI:
                 plan = None
                 
                 # Generate SQL code
+                # code = self.generate_code(analyst, question, plan, self.code_messages, self.default_example_output_sql)
                 code = self.generate_code(analyst, question, plan, self.code_messages, self.default_example_output_sql)
                 
                 # Execute SQL
@@ -932,9 +939,9 @@ class InsightAI:
                 
                 example_code = self.default_example_output_df if analyst == 'Data Analyst DF' else self.default_example_output_gen
                 
-                # Generate code
+                # Generate code in a child thread
                 code = self.generate_code(analyst, question, plan, self.code_messages, example_code)
-                
+           
                 # Execute code
                 print("Executing code for question:", question)
                 answer, results, code = self.execute_code(analyst, code, plan, question, self.code_messages)

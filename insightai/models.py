@@ -6,21 +6,21 @@ import re
 
 
 def load_llm_config():
-
+    
     default_llm_config = [
-    {"agent": "Expert Selector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Analyst Selector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Theorist", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "SQL Analyst", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
-    {"agent": "SQL Generator", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
-    {"agent": "SQL Executor", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
-    {"agent": "Dataframe Inspector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Planner", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Code Generator", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Code Debugger", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Error Corrector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Code Ranker", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Solution Summarizer", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+    {"agent": "Expert Selector", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
+    {"agent": "Analyst Selector", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
+    {"agent": "Theorist", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
+    {"agent": "SQL Analyst", "details": {"model": "llama-3.1-8b-instant", "provider": "groq", "max_tokens": 2000, "temperature": 0}},
+    {"agent": "SQL Generator", "details": {"model": "llama-3.1-8b-instant", "provider": "groq", "max_tokens": 2000, "temperature": 0}},
+    {"agent": "SQL Executor", "details": {"model": "llama-3.1-8b-instant", "provider": "groq", "max_tokens": 2000, "temperature": 0}},
+    {"agent": "Dataframe Inspector", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
+    {"agent": "Planner", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
+    {"agent": "Code Generator", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
+    {"agent": "Code Debugger", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
+    {"agent": "Error Corrector", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
+    {"agent": "Code Ranker", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
+    {"agent": "Solution Summarizer", "details": {"model": "llama-3.1-8b-instant", "provider":"groq","max_tokens": 4000, "temperature": 0}},
     ]
 
     # Try to get config from environment variable
@@ -46,13 +46,14 @@ def get_agent_details(agent, llm_config):
         if item['agent'] == agent:
             details = item.get('details', {})
             return (
-                details.get('model', 'gpt-4o-mini'),  # Default model
-                details.get('provider', 'openai'),     # Default provider
-                details.get('max_tokens', 2000),       # Default max tokens
+                details.get('model', 'llama-3.1-8b-instant'),  # Default model
+                details.get('provider', 'groq'),     # Default provider
+                details.get('max_tokens', 200),       # Default max tokens
                 details.get('temperature', 0)          # Default temperature
             )
+    return 'llama-3.1-8b-instant', 'groq', 200, 0
     # Return defaults if agent not found
-    return 'gpt-4o-mini', 'openai', 2000, 0
+    # return 'llama-3.1-8b-instant', 'openai', 2000, 0
 
 def init(agent):
     """Initialize model parameters for an agent."""
