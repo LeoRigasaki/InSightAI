@@ -10,6 +10,7 @@ test.py
 *.xlsx
 *.xls
 *.json
+!models.json
 .pypirc
 .env
 *.png
