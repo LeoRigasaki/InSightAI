@@ -2,8 +2,14 @@ name: Update Available Models
 
 on:
   schedule:
-    - cron: '0 6 * * *'  # Daily at 6 AM UTC
-  workflow_dispatch:     # Allow manual trigger
+    - cron: '0 6 * * 0'  # Weekly on Sundays at 6 AM UTC
+  workflow_dispatch:     # Manual trigger - can run anytime from Actions tab
+    inputs:
+      force_update:
+        description: 'Force update even if no changes detected'
+        required: false
+        default: false
+        type: boolean
   push:
     paths:
       - 'scripts/scrape_models.py'  # Trigger when scraper is updated
@@ -16,6 +22,16 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Check trigger type
+        run: |
+          echo "🎯 Workflow triggered by: ${{ github.event_name }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "🔧 Manual trigger detected"
+            echo "🔄 Force update: ${{ github.event.inputs.force_update }}"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "⏰ Scheduled weekly run"
+          fi
+          
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -54,9 +70,16 @@ jobs:
           git config --local user.name "${{ github.actor }}"
           git add models.json
           
-          # Only commit if there are changes
+          # Check if there are changes to commit
           if git diff --staged --quiet; then
-            echo "No changes to commit"
+            if [ "${{ github.event.inputs.force_update }}" = "true" ]; then
+              echo "No changes detected, but force update requested"
+              git commit --allow-empty -m "🤖 Force update available models [manual]"
+              git push origin ${GITHUB_REF#refs/heads/}
+              echo "Force update completed"
+            else
+              echo "No changes to commit"
+            fi
           else
             git commit -m "🤖 Update available models [automated]"
             git push origin ${GITHUB_REF#refs/heads/}
