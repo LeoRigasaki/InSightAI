@@ -52,7 +52,7 @@ jobs:
         run: |
           git config --local user.email "${{ github.actor }}@users.noreply.github.com"
           git config --local user.name "${{ github.actor }}"
-          git add -f models.json
+          git add models.json
           
           # Only commit if there are changes
           if git diff --staged --quiet; then
