@@ -1,0 +1,64 @@
+name: Update Available Models
+
+on:
+  schedule:
+    - cron: '0 6 * * *'  # Daily at 6 AM UTC
+  workflow_dispatch:     # Allow manual trigger
+  push:
+    paths:
+      - 'scripts/scrape_models.py'  # Trigger when scraper is updated
+
+permissions:
+  contents: write
+
+jobs:
+  scrape-models:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          pip install requests beautifulsoup4 tabulate
+          
+      - name: Create scripts directory if not exists
+        run: mkdir -p scripts
+          
+      - name: Run model scraper
+        run: python scripts/scrape_models.py
+        
+      - name: Check if models.json was created/updated
+        run: |
+          if [ -f "models.json" ]; then
+            echo "models.json created successfully"
+            echo "File size: $(wc -c < models.json) bytes"
+            echo "Preview:"
+            head -20 models.json
+          else
+            echo "Error: models.json not found"
+            exit 1
+          fi
+          
+      - name: Commit and push updated models
+        run: |
+          git config --local user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --local user.name "${{ github.actor }}"
+          git add models.json
+          
+          # Only commit if there are changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "🤖 Update available models [automated]"
+            git push origin ${GITHUB_REF#refs/heads/}
+            echo "Models updated and committed"
+          fi
