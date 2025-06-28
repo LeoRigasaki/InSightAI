@@ -42,6 +42,13 @@ def convert_openai_to_gemini(messages):
     
     return gemini_messages, system_content
 
+def clean_model_name(model_name: str) -> str:
+    """Remove provider prefix from model name for Gemini API."""
+    if '/' in model_name:
+        # Remove provider prefix (e.g., "google/gemini-2.0-flash" -> "gemini-2.0-flash")
+        return model_name.split('/', 1)[1]
+    return model_name
+
 def llm_call(messages: str, model_name: str, temperature: str, max_tokens: str):  
     """Make a non-streaming call to Gemini API."""
     client = init()
@@ -51,6 +58,9 @@ def llm_call(messages: str, model_name: str, temperature: str, max_tokens: str):
     try:
         gemini_messages, system_instruction = convert_openai_to_gemini(messages)
         
+        # Clean the model name to remove provider prefix
+        clean_model = clean_model_name(model_name)
+        
         generation_config = {
             "temperature": temperature,
             "top_p": 1,
@@ -59,7 +69,7 @@ def llm_call(messages: str, model_name: str, temperature: str, max_tokens: str):
         }
         
         model = client.GenerativeModel(
-            model_name=model_name,
+            model_name=clean_model,  # Use cleaned model name
             generation_config=generation_config,
             system_instruction=system_instruction
         )
@@ -99,6 +109,9 @@ def llm_stream(log_and_call_manager, chain_id: str, messages: str, model_name: s
     try:
         gemini_messages, system_instruction = convert_openai_to_gemini(messages)
         
+        # Clean the model name to remove provider prefix
+        clean_model = clean_model_name(model_name)
+        
         generation_config = {
             "temperature": temperature,
             "top_p": 1,
@@ -107,7 +120,7 @@ def llm_stream(log_and_call_manager, chain_id: str, messages: str, model_name: s
         }
         
         model = client.GenerativeModel(
-            model_name=model_name,
+            model_name=clean_model,  # Use cleaned model name
             generation_config=generation_config,
             system_instruction=system_instruction
         )

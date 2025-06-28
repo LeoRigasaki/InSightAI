@@ -45,7 +45,9 @@ class InsightAI:
         self.diagram_enabled = diagram
 
         # FIXED: Dynamic API key checking based on LLM config
-        self._check_required_api_keys()
+        if not os.getenv('LLM_CONFIG'):
+            self.output_manager.display_system_messages("🚀 No configuration found. Starting auto-configuration...")
+            self._setup_auto_configuration()
 
         self.MAX_ERROR_CORRECTIONS = 5
         # Set the maximum number of question/answer pairs to be kept in the conversation memory
@@ -217,7 +219,7 @@ class InsightAI:
             if 'groq' in providers_used and not os.getenv('GROQ_API_KEY'):
                 missing_keys.append('GROQ_API_KEY')
                 
-            if 'gemini' in providers_used and not os.getenv('GEMINI_API_KEY'):
+            if 'google-gemini' in providers_used and not os.getenv('GEMINI_API_KEY'):
                 missing_keys.append('GEMINI_API_KEY')
             
             if missing_keys:
@@ -1272,3 +1274,179 @@ class InsightAI:
         self.output_manager.display_system_messages(f"Mermaid diagram saved to {diagram_path}")
         
         return mermaid_code
+    def _setup_auto_configuration(self):
+        """Setup automatic configuration if no LLM_CONFIG exists"""
+        try:
+            # Import here to avoid circular imports
+            from . import models
+            
+            # Detect available providers
+            available_providers = models.detect_available_providers()
+            available = [p for p, avail in available_providers.items() if avail]
+            
+            if not available:
+                self.output_manager.display_system_messages("⚠️  No API keys detected! Please set at least one API key.")
+                self.output_manager.display_system_messages("Example: os.environ['GROQ_API_KEY'] = 'your-key'")
+                return
+            
+            self.output_manager.display_system_messages(f"🔑 Detected API Keys: {', '.join(available)}")
+            
+            # Ask user which mode they prefer
+            self._choose_configuration_mode(available_providers)
+                
+        except Exception as e:
+            self.output_manager.display_system_messages(f"❌ Configuration failed: {e}")
+            self.output_manager.display_system_messages("💡 Using default configuration instead.")
+
+    def _choose_configuration_mode(self, available_providers):
+        """Let user choose between simple and advanced configuration"""
+        self.output_manager.display_system_messages("\n🎛️  Configuration Mode:")
+        self.output_manager.display_system_messages("   1. Simple (one model for all agents) ⭐ Recommended")
+        self.output_manager.display_system_messages("   2. Advanced (configure each agent individually)")
+        
+        try:
+            choice = input("\nChoice [1]: ").strip() or "1"
+            
+            if choice == "1":
+                self._run_simple_configuration_wizard(available_providers)
+            elif choice == "2":
+                self._run_advanced_configuration_wizard(available_providers)
+            else:
+                self.output_manager.display_system_messages("Invalid choice. Using simple mode.")
+                self._run_simple_configuration_wizard(available_providers)
+                
+        except (KeyboardInterrupt, EOFError):
+            self.output_manager.display_system_messages("\n⚠️  Configuration cancelled. Using default settings.")
+
+    def _run_simple_configuration_wizard(self, available_providers):
+        """Run simple configuration wizard (one model for all agents)"""
+        from . import models
+        
+        self.output_manager.display_system_messages("\n🤖 Simple Configuration Mode")
+        self.output_manager.display_system_messages("=" * 40)
+        
+        # Get available models for all detected providers
+        all_models = []
+        for provider in available_providers:
+            if available_providers[provider]:
+                provider_models = models.get_available_models_by_provider(provider)
+                for model in provider_models[:5]:  # Show top 5 per provider
+                    all_models.append(f"{provider}/{model['id']}")
+        
+        if not all_models:
+            self.output_manager.display_system_messages("❌ No models found! Using fallback configuration.")
+            return
+        
+        # Add recommendations at the top
+        recommendations = []
+        rec_general = models.get_recommended_model(available_providers, 'general')
+        rec_coding = models.get_recommended_model(available_providers, 'coding')
+        rec_reliable = models.get_recommended_model(available_providers, 'reliable')
+        
+        if rec_general:
+            recommendations.append(f"{rec_general} (Cost-effective) ⭐")
+        if rec_coding and rec_coding != rec_general:
+            recommendations.append(f"{rec_coding} (Good for coding)")
+        if rec_reliable and rec_reliable not in [rec_general, rec_coding]:
+            recommendations.append(f"{rec_reliable} (Reliable)")
+        
+        # Display options
+        all_options = recommendations + all_models[:10]  # Limit total options
+        
+        self.output_manager.display_system_messages("\n📋 Available Models:")
+        for i, option in enumerate(all_options, 1):
+            self.output_manager.display_system_messages(f"   {i}. {option}")
+        
+        try:
+            choice = input(f"\nChoice [1]: ").strip() or "1"
+            choice_idx = int(choice) - 1
+            
+            if 0 <= choice_idx < len(all_options):
+                selected = all_options[choice_idx].split(' ')[0]  # Remove description
+                self.output_manager.display_system_messages(f"✅ Selected: {selected}")
+                
+                # Generate and save configuration
+                config_json = models.generate_simple_config(selected)
+                os.environ['LLM_CONFIG'] = config_json
+                
+                self.output_manager.display_system_messages("💾 Configuration saved! All agents will use this model.")
+                
+            else:
+                self.output_manager.display_system_messages("Invalid choice. Using recommended model.")
+                if rec_general:
+                    config_json = models.generate_simple_config(rec_general)
+                    os.environ['LLM_CONFIG'] = config_json
+                    
+        except (ValueError, KeyboardInterrupt, EOFError):
+            self.output_manager.display_system_messages("⚠️  Invalid input. Using recommended model.")
+            if rec_general:
+                config_json = models.generate_simple_config(rec_general)
+                os.environ['LLM_CONFIG'] = config_json
+
+    def _run_advanced_configuration_wizard(self, available_providers):
+        """Run advanced configuration wizard (configure each agent)"""
+        from . import models
+        
+        self.output_manager.display_system_messages("\n🔧 Advanced Configuration Mode")
+        self.output_manager.display_system_messages("=" * 40)
+        self.output_manager.display_system_messages("Configure each agent individually (22 agents total)")
+        self.output_manager.display_system_messages("Press Enter to use recommended model for each agent\n")
+        
+        agents = [
+            "Expert Selector", "Analyst Selector", "SQL Analyst", "SQL Generator", 
+            "SQL Executor", "Theorist", "Planner", "Code Generator", "Code Debugger",
+            "Error Corrector", "Code Ranker", "Solution Summarizer", "Google Search Query Generator",
+            "Google Search Summarizer", "Dataset Categorizer", "Question Generator", 
+            "Report Generator", "Data Quality Analyzer", "Data Cleaning Expert",
+            "Data Cleaning Planner", "ML Model Suggester", "Diagram Generator"
+        ]
+        
+        # Get available models
+        all_models = []
+        for provider in available_providers:
+            if available_providers[provider]:
+                provider_models = models.get_available_models_by_provider(provider)
+                for model in provider_models[:5]:  # Top 5 per provider
+                    all_models.append(f"{provider}/{model['id']}")
+        
+        agent_configs = {}
+        
+        try:
+            for i, agent in enumerate(agents, 1):
+                # Get task-specific recommendation
+                task_type = 'coding' if 'Code' in agent else 'general'
+                recommended = models.get_recommended_model(available_providers, task_type)
+                
+                self.output_manager.display_system_messages(f"\n📊 {agent} ({i}/{len(agents)}):")
+                self.output_manager.display_system_messages(f"   Recommended: {recommended} ⭐")
+                
+                choice = input(f"   Use recommended model? [y]/n: ").strip().lower()
+                
+                if choice in ['n', 'no']:
+                    # Show model options
+                    self.output_manager.display_system_messages("\n   Available models:")
+                    for j, model in enumerate(all_models[:8], 1):  # Show top 8
+                        self.output_manager.display_system_messages(f"     {j}. {model}")
+                    
+                    model_choice = input("   Model choice [1]: ").strip() or "1"
+                    try:
+                        model_idx = int(model_choice) - 1
+                        if 0 <= model_idx < len(all_models):
+                            agent_configs[agent] = all_models[model_idx]
+                        else:
+                            agent_configs[agent] = recommended
+                    except ValueError:
+                        agent_configs[agent] = recommended
+                else:
+                    agent_configs[agent] = recommended
+                    
+            # Generate configuration
+            config_json = models.generate_advanced_config(agent_configs)
+            os.environ['LLM_CONFIG'] = config_json
+            
+            self.output_manager.display_system_messages("\n✅ Advanced configuration complete!")
+            self.output_manager.display_system_messages("💾 Configuration saved for all agents.")
+            
+        except (KeyboardInterrupt, EOFError):
+            self.output_manager.display_system_messages("\n⚠️  Configuration cancelled. Using simple mode.")
+            self._run_simple_configuration_wizard(available_providers)
