@@ -1,6 +1,6 @@
 {
-  "last_updated": "2025-07-06T06:31:51.231570Z",
-  "total_models": 62,
+  "last_updated": "2025-07-13T06:32:44.859416Z",
+  "total_models": 63,
   "providers": {
     "openai": [
       {
@@ -322,6 +322,13 @@
       }
     ],
     "google-gemini": [
+      {
+        "id": "google/gemma-3n-e2b-it:free",
+        "name": "google/gemma-3n-e2b-it:free",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemma-3n-e2b-it:free",
+        "available": true
+      },
       {
         "id": "google/gemini-2.5-flash-lite-preview-06-17",
         "name": "google/gemini-2.5-flash-lite-preview-06-17",
