@@ -1,6 +1,6 @@
 {
-  "last_updated": "2025-07-13T06:32:44.859416Z",
-  "total_models": 63,
+  "last_updated": "2025-07-20T06:32:34.526202Z",
+  "total_models": 61,
   "providers": {
     "openai": [
       {
@@ -78,13 +78,6 @@
         "name": "openai/gpt-4o-search-preview",
         "provider": "openai",
         "link": "https://openrouter.ai/openai/gpt-4o-search-preview",
-        "available": true
-      },
-      {
-        "id": "openai/gpt-4.5-preview",
-        "name": "openai/gpt-4.5-preview",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/gpt-4.5-preview",
         "available": true
       },
       {
@@ -233,9 +226,23 @@
         "provider": "openai",
         "link": "https://openrouter.ai/openai/gpt-4",
         "available": true
+      },
+      {
+        "id": "openai/gpt-3.5-turbo",
+        "name": "openai/gpt-3.5-turbo",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-3.5-turbo",
+        "available": true
       }
     ],
     "groq": [
+      {
+        "id": "moonshotai/kimi-k2",
+        "name": "moonshotai/kimi-k2",
+        "provider": "groq",
+        "link": "https://openrouter.ai/moonshotai/kimi-k2",
+        "available": true
+      },
       {
         "id": "meta-llama/llama-guard-4-12b",
         "name": "meta-llama/llama-guard-4-12b",
@@ -262,13 +269,6 @@
         "name": "meta-llama/llama-4-scout",
         "provider": "groq",
         "link": "https://openrouter.ai/meta-llama/llama-4-scout",
-        "available": true
-      },
-      {
-        "id": "qwen/qwq-32b",
-        "name": "qwen/qwq-32b",
-        "provider": "groq",
-        "link": "https://openrouter.ai/qwen/qwq-32b",
         "available": true
       },
       {
@@ -365,24 +365,10 @@
         "available": true
       },
       {
-        "id": "google/gemini-2.5-flash-preview-05-20",
-        "name": "google/gemini-2.5-flash-preview-05-20",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-2.5-flash-preview-05-20",
-        "available": true
-      },
-      {
         "id": "google/gemini-2.5-pro",
         "name": "google/gemini-2.5-pro",
         "provider": "google-gemini",
         "link": "https://openrouter.ai/google/gemini-2.5-pro-preview-05-06",
-        "available": true
-      },
-      {
-        "id": "google/gemini-2.5-flash-preview",
-        "name": "google/gemini-2.5-flash-preview",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-2.5-flash-preview",
         "available": true
       },
       {
