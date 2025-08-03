@@ -1,6 +1,6 @@
 {
-  "last_updated": "2025-07-27T06:34:27.445808Z",
-  "total_models": 124,
+  "last_updated": "2025-08-03T06:33:49.850993Z",
+  "total_models": 118,
   "providers": {
     "openai": [
       {
@@ -214,20 +214,6 @@
         "available": true
       },
       {
-        "id": "openai/o1-preview-2024-09-12",
-        "name": "openai/o1-preview-2024-09-12",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/o1-preview-2024-09-12",
-        "available": true
-      },
-      {
-        "id": "openai/o1-preview-2024-09-12",
-        "name": "openai/o1-preview-2024-09-12",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/o1-preview-2024-09-12",
-        "available": true
-      },
-      {
         "id": "openai/o1-mini-2024-09-12",
         "name": "openai/o1-mini-2024-09-12",
         "provider": "openai",
@@ -253,20 +239,6 @@
         "name": "openai/o1-mini",
         "provider": "openai",
         "link": "https://openrouter.ai/openai/o1-mini",
-        "available": true
-      },
-      {
-        "id": "openai/o1-preview",
-        "name": "openai/o1-preview",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/o1-preview",
-        "available": true
-      },
-      {
-        "id": "openai/o1-preview",
-        "name": "openai/o1-preview",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/o1-preview",
         "available": true
       },
       {
@@ -535,20 +507,6 @@
         "name": "meta-llama/llama-4-scout",
         "provider": "groq",
         "link": "https://openrouter.ai/meta-llama/llama-4-scout",
-        "available": true
-      },
-      {
-        "id": "mistralai/mistral-saba",
-        "name": "mistralai/mistral-saba",
-        "provider": "groq",
-        "link": "https://openrouter.ai/mistralai/mistral-saba",
-        "available": true
-      },
-      {
-        "id": "mistralai/mistral-saba",
-        "name": "mistralai/mistral-saba",
-        "provider": "groq",
-        "link": "https://openrouter.ai/mistralai/mistral-saba",
         "available": true
       },
       {
