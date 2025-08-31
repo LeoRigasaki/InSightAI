@@ -1,6 +1,6 @@
 {
-  "last_updated": "2025-08-24T06:31:25.489263Z",
-  "total_models": 130,
+  "last_updated": "2025-08-31T06:29:42.868517Z",
+  "total_models": 132,
   "providers": {
     "openai": [
       {
@@ -693,6 +693,20 @@
       }
     ],
     "google-gemini": [
+      {
+        "id": "google/gemini-2.5-flash-image-preview",
+        "name": "google/gemini-2.5-flash-image-preview",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-2.5-flash-image-preview",
+        "available": true
+      },
+      {
+        "id": "google/gemini-2.5-flash-image-preview",
+        "name": "google/gemini-2.5-flash-image-preview",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-2.5-flash-image-preview",
+        "available": true
+      },
       {
         "id": "google/gemini-2.5-flash-lite",
         "name": "google/gemini-2.5-flash-lite",
