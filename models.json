@@ -1,6 +1,6 @@
 {
-  "last_updated": "2025-08-31T06:29:42.868517Z",
-  "total_models": 132,
+  "last_updated": "2025-09-07T06:28:25.273562Z",
+  "total_models": 130,
   "providers": {
     "openai": [
       {
@@ -510,6 +510,20 @@
     ],
     "groq": [
       {
+        "id": "moonshotai/kimi-k2-0905",
+        "name": "moonshotai/kimi-k2-0905",
+        "provider": "groq",
+        "link": "https://openrouter.ai/moonshotai/kimi-k2-0905",
+        "available": true
+      },
+      {
+        "id": "moonshotai/kimi-k2-0905",
+        "name": "moonshotai/kimi-k2-0905",
+        "provider": "groq",
+        "link": "https://openrouter.ai/moonshotai/kimi-k2-0905",
+        "available": true
+      },
+      {
         "id": "openai/gpt-oss-120b",
         "name": "openai/gpt-oss-120b",
         "provider": "groq",
@@ -661,34 +675,6 @@
         "name": "google/gemma-2-9b-it",
         "provider": "groq",
         "link": "https://openrouter.ai/google/gemma-2-9b-it",
-        "available": true
-      },
-      {
-        "id": "meta-llama/llama-3-8b-instruct",
-        "name": "meta-llama/llama-3-8b-instruct",
-        "provider": "groq",
-        "link": "https://openrouter.ai/meta-llama/llama-3-8b-instruct",
-        "available": true
-      },
-      {
-        "id": "meta-llama/llama-3-8b-instruct",
-        "name": "meta-llama/llama-3-8b-instruct",
-        "provider": "groq",
-        "link": "https://openrouter.ai/meta-llama/llama-3-8b-instruct",
-        "available": true
-      },
-      {
-        "id": "meta-llama/llama-3-70b-instruct",
-        "name": "meta-llama/llama-3-70b-instruct",
-        "provider": "groq",
-        "link": "https://openrouter.ai/meta-llama/llama-3-70b-instruct",
-        "available": true
-      },
-      {
-        "id": "meta-llama/llama-3-70b-instruct",
-        "name": "meta-llama/llama-3-70b-instruct",
-        "provider": "groq",
-        "link": "https://openrouter.ai/meta-llama/llama-3-70b-instruct",
         "available": true
       }
     ],
