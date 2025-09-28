@@ -1,8 +1,22 @@
 {
-  "last_updated": "2025-09-21T06:30:36.347307Z",
+  "last_updated": "2025-09-28T06:29:46.325301Z",
   "total_models": 130,
   "providers": {
     "openai": [
+      {
+        "id": "openai/gpt-5-codex",
+        "name": "openai/gpt-5-codex",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5-codex",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5-codex",
+        "name": "openai/gpt-5-codex",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5-codex",
+        "available": true
+      },
       {
         "id": "openai/gpt-4o-audio-preview",
         "name": "openai/gpt-4o-audio-preview",
@@ -680,6 +694,34 @@
     ],
     "google-gemini": [
       {
+        "id": "google/gemini-2.5-flash-preview-09-2025",
+        "name": "google/gemini-2.5-flash-preview-09-2025",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-2.5-flash-preview-09-2025",
+        "available": true
+      },
+      {
+        "id": "google/gemini-2.5-flash-preview-09-2025",
+        "name": "google/gemini-2.5-flash-preview-09-2025",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-2.5-flash-preview-09-2025",
+        "available": true
+      },
+      {
+        "id": "google/gemini-2.5-flash-lite-preview-09-2025",
+        "name": "google/gemini-2.5-flash-lite-preview-09-2025",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-2.5-flash-lite-preview-09-2025",
+        "available": true
+      },
+      {
+        "id": "google/gemini-2.5-flash-lite-preview-09-2025",
+        "name": "google/gemini-2.5-flash-lite-preview-09-2025",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-2.5-flash-lite-preview-09-2025",
+        "available": true
+      },
+      {
         "id": "google/gemini-2.5-flash-image-preview",
         "name": "google/gemini-2.5-flash-image-preview",
         "provider": "google-gemini",
@@ -873,48 +915,6 @@
         "name": "google/gemini-2.0-flash-exp:free",
         "provider": "google-gemini",
         "link": "https://openrouter.ai/google/gemini-2.0-flash-exp:free",
-        "available": true
-      },
-      {
-        "id": "google/gemini-flash-1.5-8b",
-        "name": "google/gemini-flash-1.5-8b",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-flash-1.5-8b",
-        "available": true
-      },
-      {
-        "id": "google/gemini-flash-1.5-8b",
-        "name": "google/gemini-flash-1.5-8b",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-flash-1.5-8b",
-        "available": true
-      },
-      {
-        "id": "google/gemini-flash-1.5",
-        "name": "google/gemini-flash-1.5",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-flash-1.5",
-        "available": true
-      },
-      {
-        "id": "google/gemini-flash-1.5",
-        "name": "google/gemini-flash-1.5",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-flash-1.5",
-        "available": true
-      },
-      {
-        "id": "google/gemini-pro-1.5",
-        "name": "google/gemini-pro-1.5",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-pro-1.5",
-        "available": true
-      },
-      {
-        "id": "google/gemini-pro-1.5",
-        "name": "google/gemini-pro-1.5",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-pro-1.5",
         "available": true
       }
     ]
