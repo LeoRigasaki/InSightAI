@@ -1,8 +1,22 @@
 {
-  "last_updated": "2025-10-05T06:29:00.982596Z",
-  "total_models": 130,
+  "last_updated": "2025-10-12T06:28:46.224968Z",
+  "total_models": 128,
   "providers": {
     "openai": [
+      {
+        "id": "openai/gpt-5-pro",
+        "name": "openai/gpt-5-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5-pro",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5-pro",
+        "name": "openai/gpt-5-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5-pro",
+        "available": true
+      },
       {
         "id": "openai/gpt-5-codex",
         "name": "openai/gpt-5-codex",
@@ -566,20 +580,6 @@
         "available": true
       },
       {
-        "id": "moonshotai/kimi-k2",
-        "name": "moonshotai/kimi-k2",
-        "provider": "groq",
-        "link": "https://openrouter.ai/moonshotai/kimi-k2",
-        "available": true
-      },
-      {
-        "id": "moonshotai/kimi-k2",
-        "name": "moonshotai/kimi-k2",
-        "provider": "groq",
-        "link": "https://openrouter.ai/moonshotai/kimi-k2",
-        "available": true
-      },
-      {
         "id": "meta-llama/llama-guard-4-12b",
         "name": "meta-llama/llama-guard-4-12b",
         "provider": "groq",
@@ -636,20 +636,6 @@
         "available": true
       },
       {
-        "id": "deepseek/deepseek-r1-distill-llama-70b",
-        "name": "deepseek/deepseek-r1-distill-llama-70b",
-        "provider": "groq",
-        "link": "https://openrouter.ai/deepseek/deepseek-r1-distill-llama-70b",
-        "available": true
-      },
-      {
-        "id": "deepseek/deepseek-r1-distill-llama-70b",
-        "name": "deepseek/deepseek-r1-distill-llama-70b",
-        "provider": "groq",
-        "link": "https://openrouter.ai/deepseek/deepseek-r1-distill-llama-70b",
-        "available": true
-      },
-      {
         "id": "meta-llama/llama-3.3-70b-instruct",
         "name": "meta-llama/llama-3.3-70b-instruct",
         "provider": "groq",
@@ -675,24 +661,24 @@
         "name": "meta-llama/llama-3.1-8b-instruct",
         "provider": "groq",
         "link": "https://openrouter.ai/meta-llama/llama-3.1-8b-instruct",
-        "available": true
-      },
-      {
-        "id": "google/gemma-2-9b-it",
-        "name": "google/gemma-2-9b-it",
-        "provider": "groq",
-        "link": "https://openrouter.ai/google/gemma-2-9b-it",
-        "available": true
-      },
-      {
-        "id": "google/gemma-2-9b-it",
-        "name": "google/gemma-2-9b-it",
-        "provider": "groq",
-        "link": "https://openrouter.ai/google/gemma-2-9b-it",
         "available": true
       }
     ],
     "google-gemini": [
+      {
+        "id": "google/gemini-2.5-flash-image",
+        "name": "google/gemini-2.5-flash-image",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-2.5-flash-image",
+        "available": true
+      },
+      {
+        "id": "google/gemini-2.5-flash-image",
+        "name": "google/gemini-2.5-flash-image",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-2.5-flash-image",
+        "available": true
+      },
       {
         "id": "google/gemini-2.5-flash-preview-09-2025",
         "name": "google/gemini-2.5-flash-preview-09-2025",
