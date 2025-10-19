@@ -1,8 +1,64 @@
 {
-  "last_updated": "2025-10-12T06:28:46.224968Z",
-  "total_models": 128,
+  "last_updated": "2025-10-19T06:31:05.468207Z",
+  "total_models": 136,
   "providers": {
     "openai": [
+      {
+        "id": "openai/gpt-5-image-mini",
+        "name": "openai/gpt-5-image-mini",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5-image-mini",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5-image-mini",
+        "name": "openai/gpt-5-image-mini",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5-image-mini",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5-image",
+        "name": "openai/gpt-5-image",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5-image",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5-image",
+        "name": "openai/gpt-5-image",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5-image",
+        "available": true
+      },
+      {
+        "id": "openai/o3-deep-research",
+        "name": "openai/o3-deep-research",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/o3-deep-research",
+        "available": true
+      },
+      {
+        "id": "openai/o3-deep-research",
+        "name": "openai/o3-deep-research",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/o3-deep-research",
+        "available": true
+      },
+      {
+        "id": "openai/o4-mini-deep-research",
+        "name": "openai/o4-mini-deep-research",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/o4-mini-deep-research",
+        "available": true
+      },
+      {
+        "id": "openai/o4-mini-deep-research",
+        "name": "openai/o4-mini-deep-research",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/o4-mini-deep-research",
+        "available": true
+      },
       {
         "id": "openai/gpt-5-pro",
         "name": "openai/gpt-5-pro",
