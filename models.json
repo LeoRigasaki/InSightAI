@@ -1,9 +1,51 @@
 {
-  "last_updated": "2025-10-26T06:30:41.436240Z",
-  "total_models": 136,
+  "last_updated": "2025-11-02T06:31:45.673679Z",
+  "total_models": 142,
   "providers": {
     "openai": [
       {
+        "id": "openai/text-embedding-ada-002",
+        "name": "openai/text-embedding-ada-002",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/text-embedding-ada-002",
+        "available": true
+      },
+      {
+        "id": "openai/text-embedding-ada-002",
+        "name": "openai/text-embedding-ada-002",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/text-embedding-ada-002",
+        "available": true
+      },
+      {
+        "id": "openai/text-embedding-3-large",
+        "name": "openai/text-embedding-3-large",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/text-embedding-3-large",
+        "available": true
+      },
+      {
+        "id": "openai/text-embedding-3-large",
+        "name": "openai/text-embedding-3-large",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/text-embedding-3-large",
+        "available": true
+      },
+      {
+        "id": "openai/text-embedding-3-small",
+        "name": "openai/text-embedding-3-small",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/text-embedding-3-small",
+        "available": true
+      },
+      {
+        "id": "openai/text-embedding-3-small",
+        "name": "openai/text-embedding-3-small",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/text-embedding-3-small",
+        "available": true
+      },
+      {
         "id": "openai/gpt-5-image-mini",
         "name": "openai/gpt-5-image-mini",
         "provider": "openai",
@@ -365,34 +407,6 @@
         "name": "openai/gpt-4o-2024-11-20",
         "provider": "openai",
         "link": "https://openrouter.ai/openai/gpt-4o-2024-11-20",
-        "available": true
-      },
-      {
-        "id": "openai/o1-mini-2024-09-12",
-        "name": "openai/o1-mini-2024-09-12",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/o1-mini-2024-09-12",
-        "available": true
-      },
-      {
-        "id": "openai/o1-mini-2024-09-12",
-        "name": "openai/o1-mini-2024-09-12",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/o1-mini-2024-09-12",
-        "available": true
-      },
-      {
-        "id": "openai/o1-mini",
-        "name": "openai/o1-mini",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/o1-mini",
-        "available": true
-      },
-      {
-        "id": "openai/o1-mini",
-        "name": "openai/o1-mini",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/o1-mini",
         "available": true
       },
       {
@@ -594,6 +608,20 @@
     ],
     "groq": [
       {
+        "id": "openai/gpt-oss-safeguard-20b",
+        "name": "openai/gpt-oss-safeguard-20b",
+        "provider": "groq",
+        "link": "https://openrouter.ai/openai/gpt-oss-safeguard-20b",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-oss-safeguard-20b",
+        "name": "openai/gpt-oss-safeguard-20b",
+        "provider": "groq",
+        "link": "https://openrouter.ai/openai/gpt-oss-safeguard-20b",
+        "available": true
+      },
+      {
         "id": "moonshotai/kimi-k2-0905",
         "name": "moonshotai/kimi-k2-0905",
         "provider": "groq",
@@ -721,6 +749,20 @@
       }
     ],
     "google-gemini": [
+      {
+        "id": "google/gemini-embedding-001",
+        "name": "google/gemini-embedding-001",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-embedding-001",
+        "available": true
+      },
+      {
+        "id": "google/gemini-embedding-001",
+        "name": "google/gemini-embedding-001",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-embedding-001",
+        "available": true
+      },
       {
         "id": "google/gemini-2.5-flash-image",
         "name": "google/gemini-2.5-flash-image",
