@@ -1,6 +1,6 @@
 {
-  "last_updated": "2025-11-16T06:32:25.643504Z",
-  "total_models": 150,
+  "last_updated": "2025-11-23T06:32:29.698143Z",
+  "total_models": 152,
   "providers": {
     "openai": [
       {
@@ -806,6 +806,34 @@
     ],
     "google-gemini": [
       {
+        "id": "google/gemini-3-pro-image-preview",
+        "name": "google/gemini-3-pro-image-preview",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3-pro-image-preview",
+        "available": true
+      },
+      {
+        "id": "google/gemini-3-pro-image-preview",
+        "name": "google/gemini-3-pro-image-preview",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3-pro-image-preview",
+        "available": true
+      },
+      {
+        "id": "google/gemini-3-pro-preview",
+        "name": "google/gemini-3-pro-preview",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3-pro-preview",
+        "available": true
+      },
+      {
+        "id": "google/gemini-3-pro-preview",
+        "name": "google/gemini-3-pro-preview",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3-pro-preview",
+        "available": true
+      },
+      {
         "id": "google/gemini-embedding-001",
         "name": "google/gemini-embedding-001",
         "provider": "google-gemini",
@@ -901,20 +929,6 @@
         "name": "google/gemma-3n-e2b-it:free",
         "provider": "google-gemini",
         "link": "https://openrouter.ai/google/gemma-3n-e2b-it:free",
-        "available": true
-      },
-      {
-        "id": "google/gemini-2.5-flash-lite-preview-06-17",
-        "name": "google/gemini-2.5-flash-lite-preview-06-17",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-2.5-flash-lite-preview-06-17",
-        "available": true
-      },
-      {
-        "id": "google/gemini-2.5-flash-lite-preview-06-17",
-        "name": "google/gemini-2.5-flash-lite-preview-06-17",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-2.5-flash-lite-preview-06-17",
         "available": true
       },
       {
