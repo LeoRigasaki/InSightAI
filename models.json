@@ -1,8 +1,22 @@
 {
-  "last_updated": "2025-11-30T06:36:02.568576Z",
-  "total_models": 152,
+  "last_updated": "2025-12-07T06:32:40.558205Z",
+  "total_models": 154,
   "providers": {
     "openai": [
+      {
+        "id": "openai/gpt-5.1-codex-max",
+        "name": "openai/gpt-5.1-codex-max",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5.1-codex-max",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5.1-codex-max",
+        "name": "openai/gpt-5.1-codex-max",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5.1-codex-max",
+        "available": true
+      },
       {
         "id": "openai/gpt-5.1",
         "name": "openai/gpt-5.1",
