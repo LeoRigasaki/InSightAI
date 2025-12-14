@@ -1,8 +1,50 @@
 {
-  "last_updated": "2025-12-07T06:32:40.558205Z",
-  "total_models": 154,
+  "last_updated": "2025-12-14T06:34:38.866969Z",
+  "total_models": 158,
   "providers": {
     "openai": [
+      {
+        "id": "openai/gpt-5.2-chat",
+        "name": "openai/gpt-5.2-chat",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5.2-chat",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5.2-chat",
+        "name": "openai/gpt-5.2-chat",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5.2-chat",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5.2-pro",
+        "name": "openai/gpt-5.2-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5.2-pro",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5.2-pro",
+        "name": "openai/gpt-5.2-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5.2-pro",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5.2",
+        "name": "openai/gpt-5.2",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5.2",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-5.2",
+        "name": "openai/gpt-5.2",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-5.2",
+        "available": true
+      },
       {
         "id": "openai/gpt-5.1-codex-max",
         "name": "openai/gpt-5.1-codex-max",
@@ -985,20 +1027,6 @@
         "name": "google/gemma-3n-e4b-it:free",
         "provider": "google-gemini",
         "link": "https://openrouter.ai/google/gemma-3n-e4b-it:free",
-        "available": true
-      },
-      {
-        "id": "google/gemini-2.5-pro",
-        "name": "google/gemini-2.5-pro",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-2.5-pro-preview-05-06",
-        "available": true
-      },
-      {
-        "id": "google/gemini-2.5-pro",
-        "name": "google/gemini-2.5-pro",
-        "provider": "google-gemini",
-        "link": "https://openrouter.ai/google/gemini-2.5-pro-preview-05-06",
         "available": true
       },
       {
