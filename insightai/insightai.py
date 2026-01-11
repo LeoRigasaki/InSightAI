@@ -1,4 +1,10 @@
 import os
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
 from contextlib import redirect_stdout
 import io
 import re
@@ -199,13 +205,13 @@ class InsightAI:
     def _check_required_api_keys(self):
         """Check only the API keys that are actually needed based on LLM config"""
         try:
-            # Load the LLM configuration
-            llm_config = models.load_llm_config()
+            # Load the effective configuration (merged defaults + user overrides)
+            effective_config = models.get_effective_config()
             
             # Extract unique providers from the config 
             providers_used = set()
-            for agent_config in llm_config:
-                provider = agent_config.get('details', {}).get('provider', 'openai')
+            for item in effective_config:
+                provider = item.get('details', {}).get('provider', 'openai')
                 providers_used.add(provider.lower())
             
             # Check API keys only for the providers being used
@@ -222,12 +228,16 @@ class InsightAI:
             
             if missing_keys:
                 missing_keys_str = ', '.join(missing_keys)
-                raise EnvironmentError(f"Missing required API key(s) for configured providers: {missing_keys_str}")
+                raise EnvironmentError(f"Missing required API key(s) for configured providers: {missing_keys_str}\n"
+                                     f"Please set these environment variables (e.g., in a .env file).")
                 
+        except (EnvironmentError, ValueError) as e:
+            # Re-raise explicit environment/configuration errors
+            raise e
         except Exception as e:
-            # If there's any error loading config, fall back to requiring OpenAI key (default behavior)
+            # Generic fallback for unexpected errors during config loading
             if not os.getenv('OPENAI_API_KEY'):
-                raise EnvironmentError("OPENAI_API_KEY environment variable not found.")
+                raise EnvironmentError(f"Error loading configuration and OPENAI_API_KEY is missing: {str(e)}")
 
     ######################
     ### Util Functions ###

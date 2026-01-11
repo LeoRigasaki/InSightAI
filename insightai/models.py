@@ -8,19 +8,23 @@ import re
 def load_llm_config():
 
     default_llm_config = [
-    {"agent": "Expert Selector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Analyst Selector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Theorist", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "SQL Analyst", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
-    {"agent": "SQL Generator", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
-    {"agent": "SQL Executor", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
-    {"agent": "Dataframe Inspector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Planner", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Code Generator", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Code Debugger", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Error Corrector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Code Ranker", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-    {"agent": "Solution Summarizer", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Expert Selector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Analyst Selector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Theorist", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "SQL Analyst", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
+        {"agent": "SQL Generator", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
+        {"agent": "SQL Executor", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
+        {"agent": "Dataframe Inspector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Planner", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Code Generator", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Code Debugger", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Error Corrector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Code Ranker", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Solution Summarizer", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
+        {"agent": "Dataset Categorizer", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 1000, "temperature": 0}},
+        {"agent": "Question Generator", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0.1}},
+        {"agent": "Report Generator", "details": {"model": "gpt-4o", "provider": "openai", "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Research Specialist", "details": {"model": "gpt-4o", "provider": "openai", "max_tokens": 4000, "temperature": 0}},
     ]
 
     # Try to get config from environment variable
@@ -38,25 +42,62 @@ def load_llm_config():
         except Exception:
             return default_llm_config
             
-    # Use default config
+# Use default config
     return default_llm_config
+
+def get_effective_config():
+    """Merge user config with default config to get the full picture."""
+    defaults = load_llm_config() # This gets the base list (either default or user file)
+    
+    # If load_llm_config returned the default list, we are already good.
+    # But if it returned a user list, it might be partial.
+    # The current load_llm_config implementation either returns the FULL user list OR the FULL default list.
+    # However, users often provide partial lists.
+    
+    # Re-implementing merge logic here for safety
+    if os.environ.get('LLM_CONFIG'):
+        try:
+            user_config = json.loads(os.environ.get('LLM_CONFIG'))
+        except json.JSONDecodeError:
+            user_config = []
+    elif os.path.exists("LLM_CONFIG.json"):
+        try:
+            with open("LLM_CONFIG.json", 'r') as f:
+                user_config = json.load(f)
+        except Exception:
+            user_config = []
+    else:
+        user_config = []
+
+    # Get the static defaults (copy to avoid mutation)
+    # We'll re-fetch the raw defaults by calling a private version or just hardcoding the logic
+    effective_config = {item['agent']: item for item in load_llm_config()} # Start with what load_llm_config thinks is best
+    
+    # If the user provided a separate partial list, merge it
+    for item in user_config:
+        effective_config[item['agent']] = item
+        
+    return list(effective_config.values())
+
 def get_agent_details(agent, llm_config):
     """Get model details for a specific agent from config."""
+    # The llm_config passed here is usually from load_llm_config()
     for item in llm_config:
         if item['agent'] == agent:
             details = item.get('details', {})
             return (
-                details.get('model', 'gpt-4o-mini'),  # Default model
-                details.get('provider', 'openai'),     # Default provider
-                details.get('max_tokens', 2000),       # Default max tokens
-                details.get('temperature', 0)          # Default temperature
+                details.get('model', 'gpt-4o-mini'),
+                details.get('provider', 'openai'),
+                details.get('max_tokens', 2000),
+                details.get('temperature', 0)
             )
-    # Return defaults if agent not found
+    
+    # Absolute fallback
     return 'gpt-4o-mini', 'openai', 2000, 0
 
 def init(agent):
     """Initialize model parameters for an agent."""
-    llm_config = load_llm_config()
+    llm_config = get_effective_config()
     return get_agent_details(agent, llm_config)
 
 def get_model_name(agent):

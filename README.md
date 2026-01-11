@@ -1,6 +1,6 @@
 # InsightAI 🚀
 
-[![PyPI version](https://badge.fury.io/py/insightai.svg)](https://badge.fury.io/py/insightai)
+[![PyPI version](https://badge.fury.io/py/insightai-core.svg)](https://badge.fury.io/py/insightai-core)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
@@ -23,7 +23,7 @@ A powerful open-source library that enables natural language conversations with 
 ### Installation
 
 ```bash
-pip install insightai
+pip install insightai-core
 ```
 
 ### Environment Setup

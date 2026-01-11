@@ -1,3 +1,4 @@
+__version__ = "0.1.0"
 from .insightai import InsightAI  
 from . import prompts
 from . import func_calls

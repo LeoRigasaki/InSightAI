@@ -3,8 +3,8 @@ requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "insightai"
-version = "0.5.1"
+name = "insightai-core"
+version = "0.1.0"
 description = "A lightweight library for dataset insights..."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -31,7 +31,8 @@ dependencies = [
     "seaborn>=0.11.0",     
     "scikit-learn>=1.0.0",
     "ipython>=7.0.0",
-    "pyyaml>=6.0.0"
+    "pyyaml>=6.0.0",
+    "python-dotenv>=1.0.0"
 ]
 
 

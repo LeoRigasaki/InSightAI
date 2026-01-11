@@ -69,7 +69,7 @@ jobs:
         run: pip install --upgrade pip
 
       - name: Test install from PyPI
-        run: pip install insightai
+        run: pip install insightai-core
 
       - name: Verify basic import
         run: |
