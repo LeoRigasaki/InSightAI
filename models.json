@@ -1,13 +1,55 @@
 {
-  "last_updated": "2026-01-18T06:36:09.422860Z",
-  "total_models": 161,
+  "last_updated": "2026-01-25T06:37:51.413999Z",
+  "total_models": 171,
   "providers": {
     "openai": [
+      {
+        "id": "quickstart",
+        "name": "quickstart",
+        "provider": "openai",
+        "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
+      {
+        "id": "quickstart",
+        "name": "quickstart",
+        "provider": "openai",
+        "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
       {
         "id": "api-reference",
         "name": "api-reference",
         "provider": "openai",
         "link": "https://openrouter.ai/docs/api-reference",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-audio",
+        "name": "openai/gpt-audio",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-audio",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-audio",
+        "name": "openai/gpt-audio",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-audio",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-audio-mini",
+        "name": "openai/gpt-audio-mini",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-audio-mini",
+        "available": true
+      },
+      {
+        "id": "openai/gpt-audio-mini",
+        "name": "openai/gpt-audio-mini",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-audio-mini",
         "available": true
       },
       {
@@ -727,6 +769,20 @@
     ],
     "groq": [
       {
+        "id": "quickstart",
+        "name": "quickstart",
+        "provider": "groq",
+        "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
+      {
+        "id": "quickstart",
+        "name": "quickstart",
+        "provider": "groq",
+        "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
+      {
         "id": "api-reference",
         "name": "api-reference",
         "provider": "groq",
@@ -875,6 +931,20 @@
       }
     ],
     "google-gemini": [
+      {
+        "id": "quickstart",
+        "name": "quickstart",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
+      {
+        "id": "quickstart",
+        "name": "quickstart",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
       {
         "id": "api-reference",
         "name": "api-reference",
