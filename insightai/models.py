@@ -5,26 +5,40 @@ import json
 import re
 
 
-def load_llm_config():
+def get_best_available_provider():
+    """Determine the best available provider based on environment variables."""
+    if os.getenv('OPENAI_API_KEY'):
+        return 'openai', 'gpt-4o-mini'
+    if os.getenv('GROQ_API_KEY'):
+        return 'groq', 'llama-3.3-70b-versatile'
+    if os.getenv('GEMINI_API_KEY'):
+        return 'gemini', 'gemini-1.5-flash'
+    return 'openai', 'gpt-4o-mini' # Fallback to OpenAI if nothing found
 
+def load_llm_config():
+    """Load LLM configuration, using dynamic defaults if no config is found."""
+    provider, model = get_best_available_provider()
+    
+    # Define generic defaults that adapt to the available key
+    # High-performance agents get the 'best' model, utility agents get 'cheap' model
     default_llm_config = [
-        {"agent": "Expert Selector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "Analyst Selector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "Theorist", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "SQL Analyst", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
-        {"agent": "SQL Generator", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
-        {"agent": "SQL Executor", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0}},
-        {"agent": "Dataframe Inspector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "Planner", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "Code Generator", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "Code Debugger", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "Error Corrector", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "Code Ranker", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "Solution Summarizer", "details": {"model": "gpt-4o", "provider":"openai","max_tokens": 4000, "temperature": 0}},
-        {"agent": "Dataset Categorizer", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 1000, "temperature": 0}},
-        {"agent": "Question Generator", "details": {"model": "gpt-4o-mini", "provider": "openai", "max_tokens": 2000, "temperature": 0.1}},
-        {"agent": "Report Generator", "details": {"model": "gpt-4o", "provider": "openai", "max_tokens": 4000, "temperature": 0}},
-        {"agent": "Research Specialist", "details": {"model": "gpt-4o", "provider": "openai", "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Expert Selector", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Analyst Selector", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Theorist", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "SQL Analyst", "details": {"model": model, "provider": provider, "max_tokens": 2000, "temperature": 0}},
+        {"agent": "SQL Generator", "details": {"model": model, "provider": provider, "max_tokens": 2000, "temperature": 0}},
+        {"agent": "SQL Executor", "details": {"model": model, "provider": provider, "max_tokens": 2000, "temperature": 0}},
+        {"agent": "Dataframe Inspector", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Planner", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Code Generator", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Code Debugger", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Error Corrector", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Code Ranker", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Solution Summarizer", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Dataset Categorizer", "details": {"model": model, "provider": provider, "max_tokens": 1000, "temperature": 0}},
+        {"agent": "Question Generator", "details": {"model": model, "provider": provider, "max_tokens": 2000, "temperature": 0.1}},
+        {"agent": "Report Generator", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
+        {"agent": "Research Specialist", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
     ]
 
     # Try to get config from environment variable
