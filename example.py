@@ -9,7 +9,7 @@ except ImportError:
 from insightai import InsightAI
 
 # Load complex e-commerce data
-df = pd.read_csv('complex_sales_data.csv')
+df = pd.read_csv('sales_data.csv')
 ai = InsightAI(df)
 
 # Complex multi-step analysis

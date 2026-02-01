@@ -1,189 +1,214 @@
 from termcolor import cprint
-from IPython.display import display, HTML, Markdown
+from IPython.display import display, HTML, Markdown as IPythonMarkdown
 import sys
 import time
 import pandas as pd
 
+# Rich UI Imports
+try:
+    from rich.console import Console
+    from rich.panel import Panel
+    from rich.table import Table
+    from rich.syntax import Syntax
+    from rich.markdown import Markdown as RichMarkdown
+    from rich.text import Text
+    from rich import box
+    RICH_AVAILABLE = True
+except ImportError:
+    RICH_AVAILABLE = False
+
 class OutputManager:
     def __init__(self):
-        # Summary colors
-        self.color_result_header_ntb = 'blue'
-        self.color_result_header_cli = 'green'
-        self.color_result_body_code = '#555555'
-        self.color_result_body_text = '#555555'
-        # agent colors
+        # Initialize console with force_jupyter if in notebook to ensure theme rendering
+        if self.is_notebook():
+            self.console = Console(force_jupyter=True) if RICH_AVAILABLE else None
+        else:
+            self.console = Console() if RICH_AVAILABLE else None
+        
+        # Professional Color Palette
+        self.theme = {
+            "primary": "bold cyan",
+            "secondary": "bright_black",
+            "success": "bold green",
+            "error": "bold red",
+            "warning": "bold orange3",
+            "info": "bold blue",
+            "code": "monokai",
+            "panel_border": "cyan"
+        }
+        
+        # Legacy color properties for backward compatibility
         self.color_tool_header = 'magenta'
-        # Error colors
-        self.color_error_ntb = '#d86c00'
-        self.color_error_cli = {'color': '\033[31m', 'reset': '\033[0m'}
-        # User input colors
         self.color_usr_input_prompt = 'blue'
         self.color_usr_input_rank = 'green'
-        # Token summary colors
-        self.color_token_summary_header_ntb = 'blue'
-        self.color_token_summary_text_ntb = '#555555'
-        self.color_token_summary_cli = 'yellow'
-    
+        self.color_error_ntb = '#d86c00'
+
+    def is_notebook(self):
+        return 'ipykernel' in sys.modules
+
     # Display the results of the analysis
     def display_results(self, df=None, answer=None, code=None, rank=None, vector_db=False):
-        if 'ipykernel' in sys.modules:
+        if self.is_notebook():
             if df is not None:
-                display(Markdown('## Dataframe Preview'))
-                pd.set_option('display.max_columns', None)  # Display all columns
-                pd.set_option('display.expand_frame_repr', False)  # Prevents wrapping of the display
-                pd.set_option('display.max_colwidth', None)  # Display the full text of columns
-                # Display the head of the DataFrame with style
+                self.console.print(Panel(Text(f"{df.dtypes}"), title="DataFrame Structure", border_style="cyan"))
                 display(df.head())
+            
             if code is not None:
-                display(Markdown(f'## Applied Code:\n\n```python\n{code}\n```'))
+                syntax = Syntax(code, "python", theme=self.theme["code"], line_numbers=True)
+                self.console.print(Panel(syntax, title="Applied Python Code", border_style="green"))
+            
             if answer is not None:
-                display(Markdown(f'## Solution Summary:\n\n{answer}'))
+                self.console.print(Panel(RichMarkdown(answer), title="Solution Summary", border_style="bold green"))
+            
             if vector_db and rank is not None:
-                display(Markdown(f'## Solution Rank:\n\n{rank}'))
+                self.console.print(Panel(Text(str(rank)), title="Solution Rank", border_style="blue"))
         else:
             if df is not None:
-                cprint(f"\n>> Here is the structure of your dataframe:", self.color_result_header_cli, attrs=['bold'])
-                self.print_wrapper(df.dtypes)
-            if answer is not None:
-                cprint(f"\n>> I now have the final answer:\n{answer}", self.color_result_header_cli, attrs=['bold'])
+                self.console.print(Panel(Text(f"{df.dtypes}"), title="DataFrame Structure", border_style=self.theme["panel_border"]))
+            
             if code is not None:
-                cprint(f"\n>> Here is the final code that accomplishes the task:", self.color_result_header_cli, attrs=['bold'])
-                self.print_wrapper(code)
+                syntax = Syntax(code, "python", theme=self.theme["code"], line_numbers=True)
+                self.console.print(Panel(syntax, title="Applied Python Code", border_style="green"))
+            
+            if answer is not None:
+                self.console.print(Panel(RichMarkdown(answer), title="Solution Summary", border_style=self.theme["success"]))
+            
             if vector_db and rank is not None:
-                cprint(f"\n>> Solution Rank:", self.color_result_header_cli, attrs=['bold'])
-                self.print_wrapper(rank)
+                self.console.print(Panel(Text(str(rank)), title="Solution Rank", border_style=self.theme["info"]))
+
+    def display_expert_selection(self, expert, requires_dataset, confidence):
+        grid = Table.grid(expand=True)
+        grid.add_column(style="cyan", justify="left")
+        grid.add_column(style="white", justify="right")
+        grid.add_row("Assigned Expert:", f"[bold]{expert}[/]")
+        grid.add_row("Requires Dataset:", "Yes" if requires_dataset else "No")
+        grid.add_row("Confidence Score:", f"{confidence}/10")
+        
+        self.console.print(Panel(grid, title="🧠 Selection Result", border_style="bold green", expand=False))
+
+    def display_analyst_selection(self, analyst, unknown, condition):
+        grid = Table.grid(expand=True)
+        grid.add_column(style="cyan", justify="left")
+        grid.add_row(f"Target Analyst: [bold]{analyst}[/]")
+        if unknown: grid.add_row(f"Objective: [italic]{unknown}[/]")
+        if condition: grid.add_row(f"Constraints: [italic]{condition}[/]")
+        
+        self.console.print(Panel(grid, title="🎯 Analysis Strategy", border_style="bold blue", expand=False))
 
     def display_task_eval(self, task_eval):
-        if 'ipykernel' in sys.modules:
-            display(Markdown(f'## Reasoning:\n\n{task_eval}'))
+        self.console.print(Panel(RichMarkdown(task_eval), title="Agent Reasoning & Strategy", border_style=self.theme["primary"]))
     
     # Display the header for the agent
     def display_tool_start(self, agent, model):
-        color = self.color_tool_header
-        if agent == 'Planner':
-            msg = 'Drafting a plan to provide a comprehensive answer, please wait...'
-        elif agent == 'SQL Generator':
-            msg = 'Generating SQL query based on requirements, please wait...'
-        elif agent == 'SQL Executor':
-            msg = 'Executing SQL query and formatting results, please wait...'
-        elif agent == 'SQL Analyst':
-            msg = 'Analyzing the SQL query and providing insights, please wait...'
-        elif agent == 'Dataframe Inspector':
-            msg = 'Inspecting the dataframe schema, please wait...'
-        elif agent == 'Theorist':
-            msg = 'Working on an answer to your question, please wait...'
-        elif agent == 'Google Search Query Generator':
-            msg = 'I am going to generate the queries and search the internet for the answer, please wait...'
-        elif agent == 'Expert Selector':
-            msg = 'Selecting the expert to best answer your query, please wait...'
-        elif agent == 'Code Generator':
-            msg = 'I am generating the first version of the code, please wait...'
-        elif agent == 'Code Debugger':
-            msg = 'I am reviewing and debugging the first version of the code to check for any errors, bugs, or inconsistencies and will make corrections if necessary. Please wait...'
-        elif agent == 'Code Ranker':
-            msg = 'I am going to assess, summarize and rank the answer, please wait...'
-        elif agent == 'Error Corrector':
-            msg = 'Analyzing and correcting code errors, please wait...'
-        elif agent == 'Solution Summarizer':
-            msg = 'Summarizing the solution and insights, please wait...'
-        elif agent == 'Analyst Selector':
-            msg = 'Selecting the best analyst for your query, please wait...'
-        else:
-            msg = f'Processing request with {agent}, please wait...'  # Default message for unknown agents
+        # Emoji Mapping for professional look
+        emojis = {
+            "Planner": "📝",
+            "SQL Generator": "🗄️",
+            "SQL Executor": "⚡",
+            "SQL Analyst": "📊",
+            "Dataframe Inspector": "🔍",
+            "Theorist": "💡",
+            "Google Search Query Generator": "🌐",
+            "Expert Selector": "🧠",
+            "Code Generator": "⚙️",
+            "Code Debugger": "🐛",
+            "Code Ranker": "🏆",
+            "Error Corrector": "🩹",
+            "Solution Summarizer": "📋",
+            "Analyst Selector": "🎯"
+        }
+        emoji = emojis.get(agent, "🤖")
+        
+        msg_map = {
+            'Planner': 'Drafting a plan to provide a comprehensive answer...',
+            'SQL Generator': 'Generating SQL query based on requirements...',
+            'SQL Executor': 'Executing SQL query and formatting results...',
+            'SQL Analyst': 'Analyzing the SQL query and providing insights...',
+            'Dataframe Inspector': 'Inspecting the dataframe schema...',
+            'Theorist': 'Working on an answer to your question...',
+            'Google Search Query Generator': 'Generating queries and searching the internet...',
+            'Expert Selector': 'Selecting the expert to best answer your query...',
+            'Code Generator': 'Generating the first version of the code...',
+            'Code Debugger': 'Reviewing and debugging code for inconsistencies...',
+            'Code Ranker': 'Assessing, summarizing and ranking the answer...',
+            'Error Corrector': 'Analyzing and correcting code errors...',
+            'Solution Summarizer': 'Summarizing the solution and insights...',
+            'Analyst Selector': 'Selecting the best analyst for your query...'
+        }
+        msg = msg_map.get(agent, f'Processing request with {agent}...')
 
-        if 'ipykernel' in sys.modules:
-            display(HTML(f'<p style="color:{color};">\nCalling Model: {model}</p>'))
-            display(HTML(f'<p><b style="color:{color};">{msg}</b></p><br>'))
-        else:
-            cprint(f"\n>> Calling Model: {model}", color)
-            cprint(f"\n>> {msg}\n", color, attrs=['bold'])
+        content = Text.assemble(
+            ("Model: ", self.theme["secondary"]),
+            (f"{model}", self.theme["info"]),
+            ("\nAction: ", self.theme["secondary"]),
+            (f"{msg}", "bold white")
+        )
+        self.console.print(Panel(content, title=f"{emoji} {agent}", border_style=self.theme["primary"], expand=False))
+
     # Display the footer for the agent
     def display_tool_end(self, agent):
-        color = self.color_tool_header
+        msg = ""
         if agent == 'Code Debugger':
-            msg = 'I have finished debugging the code, and will now proceed to the execution...'
+            msg = 'Finished debugging, proceeding to execution...'
         elif agent == 'Code Generator':
-            msg = 'I have finished generating the code, and will now proceed to the execution...'
-
-        if 'ipykernel' in sys.modules:
-            display(HTML(f'<p><b style="color:{color};">{msg}</b></p><br>'))
-        else:
-            cprint(f"\n>> {msg}\n", color, attrs=['bold'])
+            msg = 'Finished generating code, proceeding to execution...'
+        
+        if not msg: return
+        self.console.print(Text(f"✓ {msg}", style=self.theme["success"]))
     
     # Display the error message
     def display_error(self, error):
-        if 'ipykernel' in sys.modules:
-            display(HTML(f'<br><b><span style="color:{self.color_error_ntb};">I ran into an issue:</span></b><br><pre style="color:{self.color_error_ntb};">{error}</pre><br><b><span style="color:{self.color_error_ntb};">I will examine it, and try again with an adjusted code.</span></b><br>'))
-        else:
-            sys.stderr.write(f"{self.color_error_cli['color']}\n>> I ran into an issue:{error}. \n>> I will examine it, and try again with an adjusted code.{self.color_error_cli['reset']}\n")
-            sys.stderr.flush()
+        self.console.print(Panel(Text(str(error), style="red"), title="⚠️ Execution Error", border_style="red"))
+        self.console.print(Text("Retrying with adjusted logic...", style="yellow italic"))
     
     # Display the input to enter the prompt
     def display_user_input_prompt(self):
-        if 'ipykernel' in sys.modules:
-            display(HTML(f'<b style="color:{self.color_usr_input_prompt};">Enter your question or type \'exit\' to quit:</b>'))
+        prompt_text = "Enter your question (or 'exit' to quit):"
+        if self.is_notebook():
+            self.console.print(f"\n[bold blue]❯[/] [white]{prompt_text}[/]")
             time.sleep(1)
             question = input()
         else:
-            cprint("\nEnter your question or type 'exit' to quit:", self.color_usr_input_prompt, attrs=['bold'])
+            self.console.print(f"\n[bold blue]❯[/] [white]{prompt_text}[/]", end=" ")
             question = input()
 
         return question
     
-    # Display the input to enter the rank
     def display_user_input_rank(self):
-        if 'ipykernel' in sys.modules:
-            display(HTML(f'<b style="color:{self.color_usr_input_rank};">Are you happy with the ranking ? If YES type \'yes\'. If NO type in the new rank on a scale from 1-10:</b>'))
+        prompt_text = "Are you happy with the ranking? (type 'yes' or a new rank 1-10):"
+        if self.is_notebook():
+            self.console.print(f"\n[bold green]❯[/] [white]{prompt_text}[/]")
             time.sleep(1)
             rank_feedback = input()
         else:
-            cprint("\nAre you happy with the ranking ?\nIf YES type 'yes'. If NO type in the new rank on a scale from 1-10:", self.color_usr_input_rank, attrs=['bold'])
+            self.console.print(f"\n[bold green]❯[/] [white]{prompt_text}[/]", end=" ")
             rank_feedback = input()
 
         return rank_feedback
     
-    # Display the input to enter the rank
-    def display_search_task(self,action, action_input):
-        if 'ipykernel' in sys.modules:
-            display(HTML(f'<span style="color:{self.color_usr_input_rank};">-- running {action}: \"{action_input}\"</span>'))
-            time.sleep(1)
-        else:
-            cprint(f"\n--running {action}: \"{action_input}\"", self.color_usr_input_rank)
+    def display_search_task(self, action, action_input):
+        self.console.print(Text(f"🌐 Running {action}: ", style="cyan"), end="")
+        self.console.print(f"\"{action_input}\"", style="italic yellow")
 
     def display_system_messages(self, message):
-        if 'ipykernel' in sys.modules:
-            display(HTML(f'<span style="color:{self.color_usr_input_rank};">-- info: \"{message}\"</span>'))
-            time.sleep(1)
-        else:
-            cprint(f"\n--info: \"{message}\"", self.color_usr_input_rank)
+        self.console.print(Text(f"ℹ️ {message}", style="bold blue"))
 
     def display_call_summary(self, summary_text):
-        if 'ipykernel' in sys.modules:
-            # Split the summary text into lines
-            summary_lines = summary_text.split('\n')
-            # Start the Markdown table with headers
-            markdown_table = '**Chain Summary (Detailed info in insightai_consolidated_log.json file):**\n\n'
-            markdown_table += '| Metric                      | Value          |\n'
-            markdown_table += '|-----------------------------|----------------|\n'
-            # Populate the table with data
-            for line in summary_lines:
-                if line.strip():  # Ensure the line contains data
-                    key, value = line.split(':')
-                    key = key.strip()
-                    value = value.strip()
-                    markdown_table += f'| {key} | {value} |\n'
-
-            display(Markdown(markdown_table))
-        else:
-            cprint("\n>> Chain Summary (Detailed info in insightai_consolidated_log.json file):", self.color_token_summary_cli, attrs=['bold'])
-            self.print_wrapper(summary_text)
-
-    # A wrapper for the print function. This can be used to add additional behaviors or formatting to the print function
-    def print_wrapper(self, message, end="\n", flush=False):
-        # Add any additional behaviors or formatting here
-        formatted_message = message
+        table = Table(title="Chain Performance Summary", box=box.ROUNDED, header_style="bold magenta")
+        table.add_column("Metric", style="cyan")
+        table.add_column("Value", style="white")
         
-        print(formatted_message, end=end, flush=flush)
+        for line in summary_text.split('\n'):
+            if line.strip() and ':' in line:
+                parts = line.split(':', 1)
+                if len(parts) == 2:
+                    key, value = parts
+                    table.add_row(key.strip(), value.strip())
+        
+        self.console.print(table)
 
-
-
+    def print_wrapper(self, message, end="\n", flush=False):
+        if RICH_AVAILABLE and not self.is_notebook():
+            self.console.print(message, end=end)
+        else:
+            print(message, end=end, flush=flush)

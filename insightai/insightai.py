@@ -284,6 +284,7 @@ class InsightAI:
                                     chain_id=self.chain_id)
                                     
         expert, requires_dataset, confidence = self._extract_expert(llm_response)
+        self.output_manager.display_expert_selection(expert, requires_dataset, confidence)
         return expert, requires_dataset, confidence
     def _extract_sql_query(self, response: str) -> str:
         """Extract and clean SQL queries from the LLM response.
@@ -310,8 +311,10 @@ class InsightAI:
         '''Call the Analyst Selector'''
         agent = 'Analyst Selector'
         # Call OpenAI API to evaluate the task
+        self.output_manager.display_tool_start(agent, models.get_model_name(agent)[0])
         llm_response = self.llm_stream(self.log_and_call_manager,select_analyst_messages, agent=agent, chain_id=self.chain_id)
         analyst, query_unknown, query_condition = self._extract_analyst(llm_response)
+        self.output_manager.display_analyst_selection(analyst, query_unknown, query_condition)
 
         return analyst, query_unknown, query_condition
     
@@ -342,7 +345,7 @@ class InsightAI:
         confidence = None
         agent = None
         file_type = '.db' if hasattr(self, 'conn') else '.csv'
-        print(f"Detected file type: {file_type}")
+        self.output_manager.display_system_messages(f"Detected file type: {file_type}")
 
         # Modify expert selection for .db files
         if file_type == '.db':
@@ -412,7 +415,7 @@ class InsightAI:
     ### Main Function ###
     #####################
 
-    def pd_agent_converse(self, question=None):
+    def pd_agent_converse(self, question=None, report_enabled=False, report_question_count=3):
         if question is not None:
             loop = False
         else:
@@ -422,6 +425,12 @@ class InsightAI:
         self.chain_id = chain_id
         self.reset_messages_and_logs()
         
+        # Override instance variables if arguments are provided
+        if report_enabled:
+            self.report_enabled = True
+        if report_question_count != 3: # Assuming 3 is default instance value or typical usage
+             self.report_question_count = report_question_count
+
         if self.report_enabled:  # IMPORTANT: Use report_enabled, not generate_report
                 self.output_manager.display_system_messages("Report generation enabled - starting comprehensive analysis")
                 # Generate report with 5 auto-generated questions
@@ -781,6 +790,11 @@ class InsightAI:
                 return None, "No valid SQL query provided."
             
             results = []
+            
+            # Check if cursor exists, if not create it from connection
+            if not hasattr(self, 'cur') and hasattr(self, 'conn'):
+                self.cur = self.conn.cursor()
+
             # Split and clean queries (ignore comments and empty lines)
             queries = [q.strip() for q in query.split(';') if q.strip()]
             
@@ -825,6 +839,10 @@ class InsightAI:
     def get_db_schema(self):
         """Extract and format database schema."""
         try:
+            # Check if cursor exists, if not create it from connection
+            if not hasattr(self, 'cur') and hasattr(self, 'conn'):
+                self.cur = self.conn.cursor()
+                
             # Get list of tables
             self.cur.execute("SELECT name FROM sqlite_master WHERE type='table';")
             tables = self.cur.fetchall()

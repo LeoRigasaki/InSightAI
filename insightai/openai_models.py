@@ -91,7 +91,9 @@ def llm_stream(log_and_call_manager, chain_id: str, messages: str,model: str,tem
 
         if delta and delta.content:
             collected_messages.append(delta.content)  # save the message
-            output_handler.print_wrapper(delta.content, end='', flush=True)
+            # Only stream to console for high-level creative/info agents
+            if agent not in ['Expert Selector', 'Analyst Selector', 'Solution Summarizer']:
+                output_handler.print_wrapper(delta.content, end='', flush=True)
         elif delta and delta.tool_calls:
             tcchunklist = delta.tool_calls
             for tcchunk in tcchunklist:
@@ -142,7 +144,9 @@ def llm_stream(log_and_call_manager, chain_id: str, messages: str,model: str,tem
 
         if delta and delta.content:
             collected_messages.append(delta.content)  # save the message
-            output_handler.print_wrapper(delta.content, end='', flush=True)
+            if agent not in ['Expert Selector', 'Analyst Selector', 'Solution Summarizer']:
+                output_handler.print_wrapper(delta.content, end='', flush=True)
+
 
     end_time = time.time()
     elapsed_time = end_time - start_time
