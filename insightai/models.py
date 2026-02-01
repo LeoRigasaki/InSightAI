@@ -20,7 +20,6 @@ def load_llm_config():
     provider, model = get_best_available_provider()
     
     # Define generic defaults that adapt to the available key
-    # High-performance agents get the 'best' model, utility agents get 'cheap' model
     default_llm_config = [
         {"agent": "Expert Selector", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
         {"agent": "Analyst Selector", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
@@ -41,53 +40,31 @@ def load_llm_config():
         {"agent": "Research Specialist", "details": {"model": model, "provider": provider, "max_tokens": 4000, "temperature": 0}},
     ]
 
-    # Try to get config from environment variable
-    if os.environ.get('LLM_CONFIG'):
-        try:
-            return json.loads(os.environ.get('LLM_CONFIG'))
-        except json.JSONDecodeError:
-            return default_llm_config
-            
-    # Try to load from file
-    elif os.path.exists("LLM_CONFIG.json"):
-        try:
-            with open("LLM_CONFIG.json", 'r') as f:
-                return json.load(f)
-        except Exception:
-            return default_llm_config
-            
-# Use default config
     return default_llm_config
 
 def get_effective_config():
     """Merge user config with default config to get the full picture."""
-    defaults = load_llm_config() # This gets the base list (either default or user file)
+    # Start with base defaults
+    effective_config = {item['agent']: item for item in load_llm_config()}
     
-    # If load_llm_config returned the default list, we are already good.
-    # But if it returned a user list, it might be partial.
-    # The current load_llm_config implementation either returns the FULL user list OR the FULL default list.
-    # However, users often provide partial lists.
-    
-    # Re-implementing merge logic here for safety
-    if os.environ.get('LLM_CONFIG'):
-        try:
-            user_config = json.loads(os.environ.get('LLM_CONFIG'))
-        except json.JSONDecodeError:
-            user_config = []
-    elif os.path.exists("LLM_CONFIG.json"):
+    # Try to load user config from file
+    user_config = []
+    if os.path.exists("LLM_CONFIG.json"):
         try:
             with open("LLM_CONFIG.json", 'r') as f:
                 user_config = json.load(f)
         except Exception:
-            user_config = []
-    else:
-        user_config = []
+            pass
+            
+    # Overwrite with env var config if exists
+    if os.environ.get('LLM_CONFIG'):
+        try:
+            env_config = json.loads(os.environ.get('LLM_CONFIG'))
+            user_config.extend(env_config)
+        except json.JSONDecodeError:
+            pass
 
-    # Get the static defaults (copy to avoid mutation)
-    # We'll re-fetch the raw defaults by calling a private version or just hardcoding the logic
-    effective_config = {item['agent']: item for item in load_llm_config()} # Start with what load_llm_config thinks is best
-    
-    # If the user provided a separate partial list, merge it
+    # Merge user settings into defaults
     for item in user_config:
         effective_config[item['agent']] = item
         
@@ -95,19 +72,20 @@ def get_effective_config():
 
 def get_agent_details(agent, llm_config):
     """Get model details for a specific agent from config."""
-    # The llm_config passed here is usually from load_llm_config()
+    model, provider = get_best_available_provider()
+    
     for item in llm_config:
         if item['agent'] == agent:
             details = item.get('details', {})
             return (
-                details.get('model', 'gpt-4o-mini'),
-                details.get('provider', 'openai'),
+                details.get('model', model),
+                details.get('provider', provider),
                 details.get('max_tokens', 2000),
                 details.get('temperature', 0)
             )
     
-    # Absolute fallback
-    return 'gpt-4o-mini', 'openai', 2000, 0
+    # Absolute fallback to best available key
+    return model, provider, 2000, 0
 
 def init(agent):
     """Initialize model parameters for an agent."""
