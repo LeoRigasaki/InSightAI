@@ -1,8 +1,22 @@
 {
-  "last_updated": "2026-09-01T11:25:32.743303Z",
-  "total_models": 189,
+  "last_updated": "2026-10-01T12:48:56.100241Z",
+  "total_models": 224,
   "providers": {
     "openai": [
+      {
+        "id": "default",
+        "name": "default",
+        "provider": "openai",
+        "link": "https://openrouter.ai/workspaces/default",
+        "available": true
+      },
+      {
+        "id": "default",
+        "name": "default",
+        "provider": "openai",
+        "link": "https://openrouter.ai/workspaces/default",
+        "available": true
+      },
       {
         "id": "quickstart",
         "name": "quickstart",
@@ -11,6 +25,153 @@
         "available": true
       },
       {
+        "id": "quickstart",
+        "name": "quickstart",
+        "provider": "openai",
+        "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
+      {
+        "id": "gpt-6.1-sol-pro",
+        "name": "gpt-6.1-sol-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6.1-sol-pro",
+        "available": true
+      },
+      {
+        "id": "gpt-6.1-sol-pro",
+        "name": "gpt-6.1-sol-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6.1-sol-pro",
+        "available": true
+      },
+      {
+        "id": "gpt-6.1-sol",
+        "name": "gpt-6.1-sol",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6.1-sol",
+        "available": true
+      },
+      {
+        "id": "gpt-6.1-sol",
+        "name": "gpt-6.1-sol",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6.1-sol",
+        "available": true
+      },
+      {
+        "id": "gpt-6-luna-pro",
+        "name": "gpt-6-luna-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-luna-pro",
+        "available": true
+      },
+      {
+        "id": "gpt-6-luna-pro",
+        "name": "gpt-6-luna-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-luna-pro",
+        "available": true
+      },
+      {
+        "id": "gpt-6-luna",
+        "name": "gpt-6-luna",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-luna",
+        "available": true
+      },
+      {
+        "id": "gpt-6-luna",
+        "name": "gpt-6-luna",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-luna",
+        "available": true
+      },
+      {
+        "id": "gpt-6-sol-pro",
+        "name": "gpt-6-sol-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-sol-pro",
+        "available": true
+      },
+      {
+        "id": "gpt-6-sol-pro",
+        "name": "gpt-6-sol-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-sol-pro",
+        "available": true
+      },
+      {
+        "id": "gpt-6-sol",
+        "name": "gpt-6-sol",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-sol",
+        "available": true
+      },
+      {
+        "id": "gpt-6-sol",
+        "name": "gpt-6-sol",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-sol",
+        "available": true
+      },
+      {
+        "id": "gpt-image-2.5-sunburst",
+        "name": "gpt-image-2.5-sunburst",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-image-2.5-sunburst",
+        "available": true
+      },
+      {
+        "id": "gpt-image-2.5-sunburst",
+        "name": "gpt-image-2.5-sunburst",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-image-2.5-sunburst",
+        "available": true
+      },
+      {
+        "id": "gpt-image-2.5-flare",
+        "name": "gpt-image-2.5-flare",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-image-2.5-flare",
+        "available": true
+      },
+      {
+        "id": "gpt-image-2.5-flare",
+        "name": "gpt-image-2.5-flare",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-image-2.5-flare",
+        "available": true
+      },
+      {
+        "id": "gpt-6-astra",
+        "name": "gpt-6-astra",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-astra",
+        "available": true
+      },
+      {
+        "id": "gpt-6-astra",
+        "name": "gpt-6-astra",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-astra",
+        "available": true
+      },
+      {
+        "id": "gpt-6-astra-pro",
+        "name": "gpt-6-astra-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-astra-pro",
+        "available": true
+      },
+      {
+        "id": "gpt-6-astra-pro",
+        "name": "gpt-6-astra-pro",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-6-astra-pro",
+        "available": true
+      },
+      {
         "id": "gpt-transcribe",
         "name": "gpt-transcribe",
         "provider": "openai",
@@ -781,20 +942,6 @@
         "available": true
       },
       {
-        "id": "gpt-4-turbo-preview",
-        "name": "gpt-4-turbo-preview",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/gpt-4-turbo-preview",
-        "available": true
-      },
-      {
-        "id": "gpt-4-turbo-preview",
-        "name": "gpt-4-turbo-preview",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/gpt-4-turbo-preview",
-        "available": true
-      },
-      {
         "id": "gpt-3.5-turbo-instruct",
         "name": "gpt-3.5-turbo-instruct",
         "provider": "openai",
@@ -823,20 +970,6 @@
         "available": true
       },
       {
-        "id": "gpt-4",
-        "name": "gpt-4",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/gpt-4",
-        "available": true
-      },
-      {
-        "id": "gpt-4",
-        "name": "gpt-4",
-        "provider": "openai",
-        "link": "https://openrouter.ai/openai/gpt-4",
-        "available": true
-      },
-      {
         "id": "gpt-3.5-turbo",
         "name": "gpt-3.5-turbo",
         "provider": "openai",
@@ -848,10 +981,45 @@
         "name": "gpt-3.5-turbo",
         "provider": "openai",
         "link": "https://openrouter.ai/openai/gpt-3.5-turbo",
+        "available": true
+      },
+      {
+        "id": "gpt-4",
+        "name": "gpt-4",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-4",
+        "available": true
+      },
+      {
+        "id": "gpt-4",
+        "name": "gpt-4",
+        "provider": "openai",
+        "link": "https://openrouter.ai/openai/gpt-4",
         "available": true
       }
     ],
     "groq": [
+      {
+        "id": "default",
+        "name": "default",
+        "provider": "groq",
+        "link": "https://openrouter.ai/workspaces/default",
+        "available": true
+      },
+      {
+        "id": "default",
+        "name": "default",
+        "provider": "groq",
+        "link": "https://openrouter.ai/workspaces/default",
+        "available": true
+      },
+      {
+        "id": "quickstart",
+        "name": "quickstart",
+        "provider": "groq",
+        "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
       {
         "id": "quickstart",
         "name": "quickstart",
@@ -974,10 +1142,87 @@
     ],
     "google-gemini": [
       {
+        "id": "default",
+        "name": "default",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/workspaces/default",
+        "available": true
+      },
+      {
+        "id": "default",
+        "name": "default",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/workspaces/default",
+        "available": true
+      },
+      {
         "id": "quickstart",
         "name": "quickstart",
         "provider": "google-gemini",
         "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
+      {
+        "id": "quickstart",
+        "name": "quickstart",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/docs/quickstart",
+        "available": true
+      },
+      {
+        "id": "gemini-3.5-transcribe",
+        "name": "gemini-3.5-transcribe",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3.5-transcribe",
+        "available": true
+      },
+      {
+        "id": "gemini-3.5-transcribe",
+        "name": "gemini-3.5-transcribe",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3.5-transcribe",
+        "available": true
+      },
+      {
+        "id": "gemini-3.8-flash-lite-tts",
+        "name": "gemini-3.8-flash-lite-tts",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3.8-flash-lite-tts",
+        "available": true
+      },
+      {
+        "id": "gemini-3.8-flash-lite-tts",
+        "name": "gemini-3.8-flash-lite-tts",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3.8-flash-lite-tts",
+        "available": true
+      },
+      {
+        "id": "gemini-3.8-flash-tts",
+        "name": "gemini-3.8-flash-tts",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3.8-flash-tts",
+        "available": true
+      },
+      {
+        "id": "gemini-3.8-flash-tts",
+        "name": "gemini-3.8-flash-tts",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3.8-flash-tts",
+        "available": true
+      },
+      {
+        "id": "gemini-3.8-flash",
+        "name": "gemini-3.8-flash",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3.8-flash",
+        "available": true
+      },
+      {
+        "id": "gemini-3.8-flash",
+        "name": "gemini-3.8-flash",
+        "provider": "google-gemini",
+        "link": "https://openrouter.ai/google/gemini-3.8-flash",
         "available": true
       },
       {
